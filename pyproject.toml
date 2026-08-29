@@ -1,0 +1,17 @@
+[project]
+name = "quant-ai-research-platform"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "stofftbruce", email = "brucestofft@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+quant-ai-research-platform = "quant_ai_research_platform:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
