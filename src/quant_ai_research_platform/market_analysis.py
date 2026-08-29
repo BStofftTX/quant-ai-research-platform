@@ -38,7 +38,7 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
 
 
 def main() -> None:
-    symbol = "SPY"
+    symbol = input("Enter ticker symbol [SPY]: ").strip().upper() or "SPY"
 
     print(f"\nDownloading market data for {symbol}...")
 
