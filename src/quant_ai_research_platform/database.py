@@ -1,3 +1,4 @@
+import pandas as pd
 import psycopg
 
 
@@ -67,3 +68,37 @@ def save_market_data(symbol, data):
             cur.executemany(insert_sql, rows)
 
     print(f"Saved {len(rows)} rows for {symbol} to PostgreSQL.")
+
+
+def load_market_data(symbol):
+    query = """
+        SELECT
+            trading_date,
+            open_price,
+            high_price,
+            low_price,
+            close_price,
+            volume
+        FROM market_prices
+        WHERE symbol = %s
+        ORDER BY trading_date;
+    """
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(query, (symbol,))
+            rows = cur.fetchall()
+            columns = [desc.name for desc in cur.description]
+
+    data = pd.DataFrame(rows, columns=columns)
+
+    price_columns = [
+        "open_price",
+        "high_price",
+        "low_price",
+        "close_price",
+    ]
+
+    data[price_columns] = data[price_columns].astype(float)
+
+    return data

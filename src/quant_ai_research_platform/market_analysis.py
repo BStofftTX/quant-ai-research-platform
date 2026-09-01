@@ -2,7 +2,7 @@ import math
 
 import pandas as pd
 import yfinance as yf
-from quant_ai_research_platform.database import save_market_data
+from quant_ai_research_platform.database import load_market_data, save_market_data
 
 
 TRADING_DAYS = 252
@@ -22,6 +22,30 @@ def get_market_data(symbol: str, period: str = "1y") -> pd.DataFrame:
         raise ValueError(f"No market data returned for {symbol}")
 
     save_market_data(symbol, data)
+
+    return data
+
+
+def get_stored_market_data(symbol: str) -> pd.DataFrame:
+    """Load historical market data for a ticker from PostgreSQL."""
+    data = load_market_data(symbol)
+
+    if data.empty:
+        raise ValueError(f"No stored market data found for {symbol}")
+
+    data = data.rename(
+        columns={
+            "open_price": "Open",
+            "high_price": "High",
+            "low_price": "Low",
+            "close_price": "Close",
+            "volume": "Volume",
+        }
+    )
+
+    data["trading_date"] = pd.to_datetime(data["trading_date"])
+    data = data.set_index("trading_date")
+    data.index.name = "Date"
 
     return data
 
@@ -130,7 +154,8 @@ def analyze_symbol(
     _benchmark_stats: dict,
 ) -> dict:
     """Analyze one security relative to the benchmark."""
-    stock_data = get_market_data(symbol)
+    get_market_data(symbol)
+    stock_data = get_stored_market_data(symbol)
     stock_stats = calculate_statistics(stock_data)
     comparison = calculate_benchmark_metrics(stock_data, benchmark_data)
 
@@ -194,7 +219,8 @@ def main() -> None:
         raise ValueError("Enter at least one ticker other than SPY")
 
     print(f"\nDownloading benchmark data for {BENCHMARK}...")
-    benchmark_data = get_market_data(BENCHMARK)
+    get_market_data(BENCHMARK)
+    benchmark_data = get_stored_market_data(BENCHMARK)
     benchmark_stats = calculate_statistics(benchmark_data)
 
     results = []
