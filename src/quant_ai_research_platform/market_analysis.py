@@ -90,9 +90,15 @@ def calculate_benchmark_metrics(
         else float("nan")
     )
 
+    annualized_stock_return = returns["stock"].mean() * TRADING_DAYS
+    annualized_benchmark_return = returns["benchmark"].mean() * TRADING_DAYS
+
+    alpha = annualized_stock_return - (beta * annualized_benchmark_return)
+
     return {
         "correlation": correlation,
         "beta": beta,
+        "alpha": alpha,
     }
 
 
@@ -128,6 +134,7 @@ def main() -> None:
     print(f"{symbol} maximum drawdown:    {stock_stats['max_drawdown']:.2%}")
     print(f"Correlation with SPY:    {comparison['correlation']:.2f}")
     print(f"Beta vs SPY:             {comparison['beta']:.2f}")
+    print(f"Annualized alpha:        {comparison['alpha']:.2%}")
 
 
 if __name__ == "__main__":
