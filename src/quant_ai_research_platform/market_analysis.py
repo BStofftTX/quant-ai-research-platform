@@ -6,6 +6,10 @@ import yfinance as yf
 
 TRADING_DAYS = 252
 BENCHMARK = "SPY"
+DEFAULT_SYMBOLS = (
+    "AAPL,META,AMZN,GOOG,BABA,MSFT,TSLA,NVDA,INTC,"
+    "PWR,TSM,AMD,CRWD,PANW,ADBE,NNE,SPCX,ELVR"
+)
 
 
 def get_market_data(symbol: str, period: str = "1y") -> pd.DataFrame:
@@ -67,17 +71,28 @@ def calculate_benchmark_metrics(
     stock_data: pd.DataFrame,
     benchmark_data: pd.DataFrame,
 ) -> dict:
-    """Compare a stock's daily returns with the benchmark."""
-    stock_returns = stock_data["Close"].dropna().pct_change()
-    benchmark_returns = benchmark_data["Close"].dropna().pct_change()
-
-    returns = pd.concat(
-        [stock_returns, benchmark_returns],
+    """Compare a stock with the benchmark using aligned trading dates."""
+    aligned = pd.concat(
+        [
+            stock_data["Close"].rename("stock"),
+            benchmark_data["Close"].rename("benchmark"),
+        ],
         axis=1,
         join="inner",
     ).dropna()
 
-    returns.columns = ["stock", "benchmark"]
+    if len(aligned) < 2:
+        raise ValueError("Not enough overlapping market data")
+
+    stock_total_return = (
+        aligned["stock"].iloc[-1] / aligned["stock"].iloc[0]
+    ) - 1
+
+    benchmark_total_return = (
+        aligned["benchmark"].iloc[-1] / aligned["benchmark"].iloc[0]
+    ) - 1
+
+    returns = aligned.pct_change().dropna()
 
     correlation = returns["stock"].corr(returns["benchmark"])
 
@@ -96,45 +111,84 @@ def calculate_benchmark_metrics(
     alpha = annualized_stock_return - (beta * annualized_benchmark_return)
 
     return {
+        "start_date": aligned.index[0].date(),
+        "end_date": aligned.index[-1].date(),
+        "observations": len(aligned),
+        "stock_total_return": stock_total_return,
+        "benchmark_total_return": benchmark_total_return,
         "correlation": correlation,
         "beta": beta,
         "alpha": alpha,
     }
 
-
-def main() -> None:
-    symbol = input("Enter ticker symbol [AAPL]: ").strip().upper() or "AAPL"
-
-    print(f"\nDownloading market data for {symbol} and {BENCHMARK}...")
-
+def analyze_symbol(
+    symbol: str,
+    benchmark_data: pd.DataFrame,
+    _benchmark_stats: dict,
+) -> None:
+    """Analyze one security relative to the benchmark."""
     stock_data = get_market_data(symbol)
-    benchmark_data = get_market_data(BENCHMARK)
-
     stock_stats = calculate_statistics(stock_data)
-    benchmark_stats = calculate_statistics(benchmark_data)
-
-    comparison = calculate_benchmark_metrics(
-        stock_data,
-        benchmark_data,
-    )
+    comparison = calculate_benchmark_metrics(stock_data, benchmark_data)
 
     excess_return = (
-        stock_stats["total_return"]
-        - benchmark_stats["total_return"]
+        comparison["stock_total_return"]
+        - comparison["benchmark_total_return"]
     )
 
-    print(f"\nQuantitative Analysis: {symbol}")
-    print("-" * 45)
-    print(f"{symbol} total return:       {stock_stats['total_return']:.2%}")
-    print(f"{BENCHMARK} total return:        {benchmark_stats['total_return']:.2%}")
-    print(f"Excess return vs SPY:    {excess_return:.2%}")
-    print(f"{symbol} CAGR:               {stock_stats['cagr']:.2%}")
-    print(f"{symbol} volatility:         {stock_stats['annualized_volatility']:.2%}")
-    print(f"{symbol} Sharpe ratio:        {stock_stats['sharpe_ratio']:.2f}")
-    print(f"{symbol} maximum drawdown:    {stock_stats['max_drawdown']:.2%}")
+    print(f"\n{symbol} vs {BENCHMARK}")
+    print("-" * 40)
+    print(
+        f"Analysis period:         "
+        f"{comparison['start_date']} to {comparison['end_date']}"
+    )
+    print(f"Aligned observations:    {comparison['observations']}")
+    print(f"{symbol} total return:       {comparison['stock_total_return']:.2%}")
+    print(f"{BENCHMARK} total return:        {comparison['benchmark_total_return']:.2%}")
+    print(f"Excess return:           {excess_return:.2%}")
+    print(f"CAGR:                    {stock_stats['cagr']:.2%}")
+    print(f"Annualized volatility:   {stock_stats['annualized_volatility']:.2%}")
+    print(f"Sharpe ratio:            {stock_stats['sharpe_ratio']:.2f}")
+    print(f"Maximum drawdown:        {stock_stats['max_drawdown']:.2%}")
     print(f"Correlation with SPY:    {comparison['correlation']:.2f}")
     print(f"Beta vs SPY:             {comparison['beta']:.2f}")
     print(f"Annualized alpha:        {comparison['alpha']:.2%}")
+
+def main() -> None:
+    raw_symbols = input(
+        f"Enter ticker symbols separated by commas [{DEFAULT_SYMBOLS}]: "
+    ).strip()
+
+    if not raw_symbols:
+        raw_symbols = DEFAULT_SYMBOLS
+
+    symbols = [
+        symbol.strip().upper()
+        for symbol in raw_symbols.split(",")
+        if symbol.strip()
+    ]
+
+    symbols = [symbol for symbol in symbols if symbol != BENCHMARK]
+
+    if not symbols:
+        raise ValueError("Enter at least one ticker other than SPY")
+
+    print(f"\nDownloading benchmark data for {BENCHMARK}...")
+
+    benchmark_data = get_market_data(BENCHMARK)
+    benchmark_stats = calculate_statistics(benchmark_data)
+
+    for symbol in symbols:
+        print(f"\nDownloading market data for {symbol}...")
+
+        try:
+            analyze_symbol(
+                symbol,
+                benchmark_data,
+                benchmark_stats,
+            )
+        except ValueError as error:
+            print(f"Unable to analyze {symbol}: {error}")
 
 
 if __name__ == "__main__":
