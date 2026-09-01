@@ -5,6 +5,7 @@ import yfinance as yf
 
 
 TRADING_DAYS = 252
+BENCHMARK = "SPY"
 
 
 def get_market_data(symbol: str, period: str = "1y") -> pd.DataFrame:
@@ -62,25 +63,71 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
     }
 
 
+def calculate_benchmark_metrics(
+    stock_data: pd.DataFrame,
+    benchmark_data: pd.DataFrame,
+) -> dict:
+    """Compare a stock's daily returns with the benchmark."""
+    stock_returns = stock_data["Close"].dropna().pct_change()
+    benchmark_returns = benchmark_data["Close"].dropna().pct_change()
+
+    returns = pd.concat(
+        [stock_returns, benchmark_returns],
+        axis=1,
+        join="inner",
+    ).dropna()
+
+    returns.columns = ["stock", "benchmark"]
+
+    correlation = returns["stock"].corr(returns["benchmark"])
+
+    benchmark_variance = returns["benchmark"].var()
+    covariance = returns["stock"].cov(returns["benchmark"])
+
+    beta = (
+        covariance / benchmark_variance
+        if benchmark_variance != 0
+        else float("nan")
+    )
+
+    return {
+        "correlation": correlation,
+        "beta": beta,
+    }
+
+
 def main() -> None:
-    symbol = input("Enter ticker symbol [SPY]: ").strip().upper() or "SPY"
+    symbol = input("Enter ticker symbol [AAPL]: ").strip().upper() or "AAPL"
 
-    print(f"\nDownloading market data for {symbol}...")
+    print(f"\nDownloading market data for {symbol} and {BENCHMARK}...")
 
-    data = get_market_data(symbol)
-    statistics = calculate_statistics(data)
+    stock_data = get_market_data(symbol)
+    benchmark_data = get_market_data(BENCHMARK)
+
+    stock_stats = calculate_statistics(stock_data)
+    benchmark_stats = calculate_statistics(benchmark_data)
+
+    comparison = calculate_benchmark_metrics(
+        stock_data,
+        benchmark_data,
+    )
+
+    excess_return = (
+        stock_stats["total_return"]
+        - benchmark_stats["total_return"]
+    )
 
     print(f"\nQuantitative Analysis: {symbol}")
-    print("-" * 40)
-    print(f"Starting price:        ${statistics['starting_price']:.2f}")
-    print(f"Ending price:          ${statistics['ending_price']:.2f}")
-    print(f"Total return:           {statistics['total_return']:.2%}")
-    print(f"CAGR:                   {statistics['cagr']:.2%}")
-    print(f"Average daily return:   {statistics['average_daily_return']:.4%}")
-    print(f"Daily volatility:       {statistics['daily_volatility']:.4%}")
-    print(f"Annualized volatility:  {statistics['annualized_volatility']:.2%}")
-    print(f"Sharpe ratio:           {statistics['sharpe_ratio']:.2f}")
-    print(f"Maximum drawdown:       {statistics['max_drawdown']:.2%}")
+    print("-" * 45)
+    print(f"{symbol} total return:       {stock_stats['total_return']:.2%}")
+    print(f"{BENCHMARK} total return:        {benchmark_stats['total_return']:.2%}")
+    print(f"Excess return vs SPY:    {excess_return:.2%}")
+    print(f"{symbol} CAGR:               {stock_stats['cagr']:.2%}")
+    print(f"{symbol} volatility:         {stock_stats['annualized_volatility']:.2%}")
+    print(f"{symbol} Sharpe ratio:        {stock_stats['sharpe_ratio']:.2f}")
+    print(f"{symbol} maximum drawdown:    {stock_stats['max_drawdown']:.2%}")
+    print(f"Correlation with SPY:    {comparison['correlation']:.2f}")
+    print(f"Beta vs SPY:             {comparison['beta']:.2f}")
 
 
 if __name__ == "__main__":
