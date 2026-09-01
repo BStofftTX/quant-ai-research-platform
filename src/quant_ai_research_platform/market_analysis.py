@@ -2,6 +2,7 @@ import math
 
 import pandas as pd
 import yfinance as yf
+from quant_ai_research_platform.database import save_market_data
 
 
 TRADING_DAYS = 252
@@ -19,6 +20,8 @@ def get_market_data(symbol: str, period: str = "1y") -> pd.DataFrame:
 
     if data.empty:
         raise ValueError(f"No market data returned for {symbol}")
+
+    save_market_data(symbol, data)
 
     return data
 
