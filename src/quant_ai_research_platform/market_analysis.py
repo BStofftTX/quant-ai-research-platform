@@ -125,7 +125,7 @@ def analyze_symbol(
     symbol: str,
     benchmark_data: pd.DataFrame,
     _benchmark_stats: dict,
-) -> None:
+) -> dict:
     """Analyze one security relative to the benchmark."""
     stock_data = get_market_data(symbol)
     stock_stats = calculate_statistics(stock_data)
@@ -154,6 +154,23 @@ def analyze_symbol(
     print(f"Beta vs SPY:             {comparison['beta']:.2f}")
     print(f"Annualized alpha:        {comparison['alpha']:.2%}")
 
+    return {
+        "symbol": symbol,
+        "start_date": comparison["start_date"],
+        "end_date": comparison["end_date"],
+        "observations": comparison["observations"],
+        "total_return": comparison["stock_total_return"],
+        "benchmark_return": comparison["benchmark_total_return"],
+        "excess_return": excess_return,
+        "cagr": stock_stats["cagr"],
+        "annualized_volatility": stock_stats["annualized_volatility"],
+        "sharpe_ratio": stock_stats["sharpe_ratio"],
+        "max_drawdown": stock_stats["max_drawdown"],
+        "correlation": comparison["correlation"],
+        "beta": comparison["beta"],
+        "alpha": comparison["alpha"],
+    }
+
 def main() -> None:
     raw_symbols = input(
         f"Enter ticker symbols separated by commas [{DEFAULT_SYMBOLS}]: "
@@ -174,21 +191,75 @@ def main() -> None:
         raise ValueError("Enter at least one ticker other than SPY")
 
     print(f"\nDownloading benchmark data for {BENCHMARK}...")
-
     benchmark_data = get_market_data(BENCHMARK)
     benchmark_stats = calculate_statistics(benchmark_data)
+
+    results = []
 
     for symbol in symbols:
         print(f"\nDownloading market data for {symbol}...")
 
         try:
-            analyze_symbol(
+            result = analyze_symbol(
                 symbol,
                 benchmark_data,
                 benchmark_stats,
             )
+            results.append(result)
+
         except ValueError as error:
             print(f"Unable to analyze {symbol}: {error}")
+
+    if not results:
+        raise ValueError("No securities were successfully analyzed")
+
+    comparison_table = pd.DataFrame(results)
+
+    comparison_table = comparison_table.sort_values(
+        by="sharpe_ratio",
+        ascending=False,
+    ).reset_index(drop=True)
+
+    comparison_table.index = comparison_table.index + 1
+    comparison_table.index.name = "Rank"
+
+    print("\n")
+    print("=" * 100)
+    print("SECURITY COMPARISON — RANKED BY SHARPE RATIO")
+    print("=" * 100)
+
+    display_columns = [
+        "symbol",
+        "start_date",
+        "end_date",
+        "observations",
+        "total_return",
+        "excess_return",
+        "annualized_volatility",
+        "sharpe_ratio",
+        "max_drawdown",
+        "beta",
+        "alpha",
+    ]
+
+    print(
+        comparison_table[display_columns].to_string(
+            formatters={
+                "total_return": lambda value: f"{value:.2%}",
+                "excess_return": lambda value: f"{value:.2%}",
+                "annualized_volatility": lambda value: f"{value:.2%}",
+                "sharpe_ratio": lambda value: f"{value:.2f}",
+                "max_drawdown": lambda value: f"{value:.2%}",
+                "beta": lambda value: f"{value:.2f}",
+                "alpha": lambda value: f"{value:.2%}",
+            }
+        )
+    )
+
+    output_file = "security_comparison.csv"
+    comparison_table.to_csv(output_file, index=True)
+
+    print(f"\nSaved ranked results to {output_file}")
 
 
 if __name__ == "__main__":
