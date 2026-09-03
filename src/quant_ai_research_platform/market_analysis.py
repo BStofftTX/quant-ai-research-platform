@@ -85,6 +85,7 @@ def calculate_benchmark_metrics(
     returns = aligned.pct_change().dropna()
 
     correlation = returns["stock"].corr(returns["benchmark"])
+    r_squared = correlation ** 2
 
     benchmark_variance = returns["benchmark"].var()
     covariance = returns["stock"].cov(returns["benchmark"])
@@ -107,6 +108,7 @@ def calculate_benchmark_metrics(
         "stock_total_return": stock_total_return,
         "benchmark_total_return": benchmark_total_return,
         "correlation": correlation,
+        "r_squared": r_squared,
         "beta": beta,
         "alpha": alpha,
     }

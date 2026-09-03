@@ -38,5 +38,6 @@ def test_benchmark_metrics_align_dates():
     result = calculate_benchmark_metrics(stock, benchmark)
 
     assert result["observations"] == 3
+    assert round(result["r_squared"], 6) == round(result["correlation"] ** 2, 6)
     assert result["start_date"] == date(2026, 1, 2)
     assert result["end_date"] == date(2026, 1, 6)
