@@ -5,6 +5,7 @@ import pandas as pd
 from quant_ai_research_platform.market_analysis import (
     calculate_benchmark_metrics,
     calculate_factor_regression,
+    find_abnormal_returns,
     calculate_statistics,
 )
 
@@ -61,3 +62,21 @@ def test_calculate_factor_regression():
     assert round(result["daily_alpha"], 6) == 0.0
     assert round(result["r_squared"], 6) == 1.0
     assert abs(result["residuals"]).max() < 1e-12
+
+
+def test_find_abnormal_returns():
+    residuals = pd.Series(
+        [0.01, -0.03, 0.02, -0.005],
+        index=pd.to_datetime(
+            ["2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07"]
+        ),
+    )
+
+    result = find_abnormal_returns(residuals, top_n=2)
+
+    assert list(result.index) == list(
+        pd.to_datetime(["2026-01-05", "2026-01-06"])
+    )
+    assert result.iloc[0]["residual"] == -0.03
+    assert result.iloc[1]["residual"] == 0.02
+    assert result.iloc[0]["absolute_residual"] == 0.03

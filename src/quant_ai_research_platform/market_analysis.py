@@ -153,6 +153,26 @@ def calculate_factor_regression(
     }
 
 
+def find_abnormal_returns(
+    residuals: pd.Series,
+    top_n: int = 5,
+) -> pd.DataFrame:
+    """Return the largest factor-model residuals by absolute magnitude."""
+    clean = residuals.dropna()
+
+    if clean.empty:
+        raise ValueError("No residuals available for abnormal-return analysis")
+
+    ranked = clean.abs().sort_values(ascending=False).head(top_n)
+
+    return pd.DataFrame(
+        {
+            "residual": clean.loc[ranked.index],
+            "absolute_residual": ranked,
+        }
+    )
+
+
 def analyze_symbol(
     symbol: str,
     benchmark_data: pd.DataFrame,
