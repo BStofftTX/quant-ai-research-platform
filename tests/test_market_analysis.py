@@ -80,3 +80,27 @@ def test_find_abnormal_returns():
     assert result.iloc[0]["residual"] == -0.03
     assert result.iloc[1]["residual"] == 0.02
     assert result.iloc[0]["absolute_residual"] == 0.03
+
+def test_find_abnormal_returns_flags_large_z_scores():
+    residuals = pd.Series(
+        [0.001, -0.002, 0.0005, 0.0015, -0.020],
+        index=pd.to_datetime(
+            [
+                "2026-01-02",
+                "2026-01-05",
+                "2026-01-06",
+                "2026-01-07",
+                "2026-01-08",
+            ]
+        ),
+    )
+
+    result = find_abnormal_returns(
+        residuals,
+        top_n=5,
+        z_threshold=1.5,
+    )
+
+    assert "z_score" in result.columns
+    assert "is_abnormal" in result.columns
+    assert result.loc[pd.Timestamp("2026-01-08"), "is_abnormal"]

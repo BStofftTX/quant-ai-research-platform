@@ -156,19 +156,28 @@ def calculate_factor_regression(
 def find_abnormal_returns(
     residuals: pd.Series,
     top_n: int = 5,
+    z_threshold: float = 2.0,
 ) -> pd.DataFrame:
-    """Return the largest factor-model residuals by absolute magnitude."""
+    """Return the largest residuals with z-scores and abnormal flags."""
     clean = residuals.dropna()
 
     if clean.empty:
         raise ValueError("No residuals available for abnormal-return analysis")
 
+    residual_std = clean.std()
+
+    if residual_std == 0:
+        raise ValueError("Residuals have zero standard deviation")
+
+    z_scores = (clean - clean.mean()) / residual_std
     ranked = clean.abs().sort_values(ascending=False).head(top_n)
 
     return pd.DataFrame(
         {
             "residual": clean.loc[ranked.index],
             "absolute_residual": ranked,
+            "z_score": z_scores.loc[ranked.index],
+            "is_abnormal": z_scores.loc[ranked.index].abs() >= z_threshold,
         }
     )
 
