@@ -4,6 +4,7 @@ import pandas as pd
 
 from quant_ai_research_platform.market_analysis import (
     calculate_benchmark_metrics,
+    calculate_factor_regression,
     calculate_statistics,
 )
 
@@ -41,3 +42,22 @@ def test_benchmark_metrics_align_dates():
     assert round(result["r_squared"], 6) == round(result["correlation"] ** 2, 6)
     assert result["start_date"] == date(2026, 1, 2)
     assert result["end_date"] == date(2026, 1, 6)
+
+
+def test_calculate_factor_regression():
+    factor = pd.DataFrame(
+        {"Close": [100.0, 102.0, 101.0, 104.0, 103.0]},
+        index=pd.to_datetime(
+            ["2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08"]
+        ),
+    )
+    stock = factor.copy()
+    stock["Close"] = 2 * factor["Close"]
+
+    result = calculate_factor_regression(stock, factor)
+
+    assert result["observations"] == 4
+    assert round(result["beta"], 6) == 1.0
+    assert round(result["daily_alpha"], 6) == 0.0
+    assert round(result["r_squared"], 6) == 1.0
+    assert abs(result["residuals"]).max() < 1e-12

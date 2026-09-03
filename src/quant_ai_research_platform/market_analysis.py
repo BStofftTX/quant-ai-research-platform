@@ -113,6 +113,46 @@ def calculate_benchmark_metrics(
         "alpha": alpha,
     }
 
+def calculate_factor_regression(
+    stock_data: pd.DataFrame,
+    factor_data: pd.DataFrame,
+) -> dict:
+    """Run a one-factor regression on aligned daily returns."""
+    aligned = pd.concat(
+        [
+            stock_data["Close"].rename("stock"),
+            factor_data["Close"].rename("factor"),
+        ],
+        axis=1,
+        join="inner",
+    ).dropna()
+
+    returns = aligned.pct_change().dropna()
+
+    if len(returns) < 2:
+        raise ValueError("Not enough overlapping returns for factor regression")
+
+    factor_variance = returns["factor"].var()
+
+    if factor_variance == 0:
+        raise ValueError("Factor returns have zero variance")
+
+    beta = returns["stock"].cov(returns["factor"]) / factor_variance
+    daily_alpha = returns["stock"].mean() - beta * returns["factor"].mean()
+    predicted = daily_alpha + beta * returns["factor"]
+    residuals = returns["stock"] - predicted
+    correlation = returns["stock"].corr(returns["factor"])
+
+    return {
+        "observations": len(returns),
+        "daily_alpha": daily_alpha,
+        "annualized_alpha": daily_alpha * TRADING_DAYS,
+        "beta": beta,
+        "r_squared": correlation ** 2,
+        "residuals": residuals,
+    }
+
+
 def analyze_symbol(
     symbol: str,
     benchmark_data: pd.DataFrame,
