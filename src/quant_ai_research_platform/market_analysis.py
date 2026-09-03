@@ -2,10 +2,7 @@ import math
 
 import pandas as pd
 
-from quant_ai_research_platform.etl import (
-    get_market_data,
-    get_stored_market_data,
-)
+from quant_ai_research_platform.etl import get_stored_market_data
 
 
 TRADING_DAYS = 252
@@ -120,10 +117,12 @@ def analyze_symbol(
     _benchmark_stats: dict,
 ) -> dict:
     """Analyze one security relative to the benchmark."""
-    get_market_data(symbol)
     stock_data = get_stored_market_data(symbol)
+    common_dates = stock_data.index.intersection(benchmark_data.index)
+    stock_data = stock_data.loc[common_dates]
+    aligned_benchmark = benchmark_data.loc[common_dates]
     stock_stats = calculate_statistics(stock_data)
-    comparison = calculate_benchmark_metrics(stock_data, benchmark_data)
+    comparison = calculate_benchmark_metrics(stock_data, aligned_benchmark)
 
     excess_return = (
         comparison["stock_total_return"]
@@ -184,15 +183,14 @@ def main() -> None:
     if not symbols:
         raise ValueError("Enter at least one ticker other than SPY")
 
-    print(f"\nDownloading benchmark data for {BENCHMARK}...")
-    get_market_data(BENCHMARK)
+    print(f"\nLoading benchmark data for {BENCHMARK} from PostgreSQL...")
     benchmark_data = get_stored_market_data(BENCHMARK)
     benchmark_stats = calculate_statistics(benchmark_data)
 
     results = []
 
     for symbol in symbols:
-        print(f"\nDownloading market data for {symbol}...")
+        print(f"\nLoading stored market data for {symbol}...")
 
         try:
             result = analyze_symbol(
