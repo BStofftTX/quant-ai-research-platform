@@ -57,6 +57,60 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
     }
 
 
+def calculate_rolling_metrics(
+    stock_data: pd.DataFrame,
+    benchmark_data: pd.DataFrame,
+    window: int = 60,
+) -> pd.DataFrame:
+    """Calculate rolling volatility, correlation, and beta."""
+    aligned = pd.concat(
+        [
+            stock_data["Close"].rename("stock"),
+            benchmark_data["Close"].rename("benchmark"),
+        ],
+        axis=1,
+        join="inner",
+    ).dropna()
+
+    returns = aligned.pct_change().dropna()
+
+    if len(returns) < window:
+        raise ValueError("Not enough overlapping returns for rolling window")
+
+    stock_volatility = (
+        returns["stock"].rolling(window).std() * math.sqrt(TRADING_DAYS)
+    )
+
+    correlation = (
+        returns["stock"]
+        .rolling(window)
+        .corr(returns["benchmark"])
+    )
+
+    covariance = (
+        returns["stock"]
+        .rolling(window)
+        .cov(returns["benchmark"])
+    )
+
+    benchmark_variance = (
+        returns["benchmark"]
+        .rolling(window)
+        .var()
+    )
+
+    beta = covariance / benchmark_variance
+
+    return pd.DataFrame(
+        {
+            "annualized_volatility": stock_volatility,
+            "correlation": correlation,
+            "beta": beta,
+        }
+    ).dropna()
+
+
+
 def calculate_benchmark_metrics(
     stock_data: pd.DataFrame,
     benchmark_data: pd.DataFrame,

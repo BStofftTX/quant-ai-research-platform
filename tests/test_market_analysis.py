@@ -5,6 +5,7 @@ import pandas as pd
 from quant_ai_research_platform.market_analysis import (
     calculate_benchmark_metrics,
     calculate_factor_regression,
+    calculate_rolling_metrics,
     find_abnormal_returns,
     calculate_statistics,
 )
@@ -104,3 +105,39 @@ def test_find_abnormal_returns_flags_large_z_scores():
     assert "z_score" in result.columns
     assert "is_abnormal" in result.columns
     assert result.loc[pd.Timestamp("2026-01-08"), "is_abnormal"]
+
+def test_calculate_rolling_metrics():
+    dates = pd.to_datetime(
+        [
+            "2026-01-02",
+            "2026-01-05",
+            "2026-01-06",
+            "2026-01-07",
+            "2026-01-08",
+            "2026-01-09",
+        ]
+    )
+
+    stock = pd.DataFrame(
+        {"Close": [100.0, 102.0, 101.0, 104.0, 103.0, 106.0]},
+        index=dates,
+    )
+
+    benchmark = pd.DataFrame(
+        {"Close": [200.0, 202.0, 201.0, 203.0, 202.0, 205.0]},
+        index=dates,
+    )
+
+    result = calculate_rolling_metrics(
+        stock,
+        benchmark,
+        window=3,
+    )
+
+    assert list(result.columns) == [
+        "annualized_volatility",
+        "correlation",
+        "beta",
+    ]
+    assert len(result) == 3
+    assert result.notna().all().all()
