@@ -141,3 +141,29 @@ def test_calculate_rolling_metrics():
     ]
     assert len(result) == 3
     assert result.notna().all().all()
+
+def test_factor_regression_inference_fields():
+    factor = pd.DataFrame(
+        {"Close": [100.0, 101.0, 103.0, 102.0, 105.0, 107.0]},
+        index=pd.to_datetime(
+            [
+                "2026-01-02",
+                "2026-01-05",
+                "2026-01-06",
+                "2026-01-07",
+                "2026-01-08",
+                "2026-01-09",
+            ]
+        ),
+    )
+
+    stock = pd.DataFrame(
+        {"Close": [200.0, 202.4, 206.0, 204.2, 210.5, 214.4]},
+        index=factor.index,
+    )
+
+    result = calculate_factor_regression(stock, factor)
+
+    assert result["beta_standard_error"] > 0
+    assert result["beta_ci_lower"] < result["beta"] < result["beta_ci_upper"]
+    assert 0 <= result["beta_p_value"] <= 1

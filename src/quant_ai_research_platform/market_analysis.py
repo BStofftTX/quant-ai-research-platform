@@ -1,6 +1,7 @@
 import math
 
 import pandas as pd
+from scipy import stats
 
 from quant_ai_research_platform.etl import get_stored_market_data
 
@@ -197,11 +198,34 @@ def calculate_factor_regression(
     residuals = returns["stock"] - predicted
     correlation = returns["stock"].corr(returns["factor"])
 
+    degrees_freedom = len(returns) - 2
+    residual_variance = (residuals ** 2).sum() / degrees_freedom
+    factor_squared_deviation = (
+        (returns["factor"] - returns["factor"].mean()) ** 2
+    ).sum()
+
+    beta_standard_error = math.sqrt(
+        residual_variance / factor_squared_deviation
+    )
+    beta_t_statistic = beta / beta_standard_error
+    beta_p_value = 2 * stats.t.sf(
+        abs(beta_t_statistic),
+        degrees_freedom,
+    )
+    critical_value = stats.t.ppf(0.975, degrees_freedom)
+    beta_ci_lower = beta - critical_value * beta_standard_error
+    beta_ci_upper = beta + critical_value * beta_standard_error
+
     return {
         "observations": len(returns),
         "daily_alpha": daily_alpha,
         "annualized_alpha": daily_alpha * TRADING_DAYS,
         "beta": beta,
+        "beta_standard_error": beta_standard_error,
+        "beta_t_statistic": beta_t_statistic,
+        "beta_p_value": beta_p_value,
+        "beta_ci_lower": beta_ci_lower,
+        "beta_ci_upper": beta_ci_upper,
         "r_squared": correlation ** 2,
         "residuals": residuals,
     }
