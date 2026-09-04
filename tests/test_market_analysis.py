@@ -209,3 +209,13 @@ def test_calculate_statistics_includes_sortino():
     assert stats["downside_deviation"] > 0
     assert "sortino_ratio" in stats
     assert stats["sortino_ratio"] == stats["average_daily_return"] * 252 / stats["downside_deviation"]
+
+def test_calculate_statistics_includes_calmar():
+    data = pd.DataFrame(
+        {"Close": [100.0, 105.0, 103.0, 108.0, 104.0, 110.0]}
+    )
+
+    stats = calculate_statistics(data)
+
+    assert "calmar_ratio" in stats
+    assert stats["calmar_ratio"] == stats["cagr"] / abs(stats["max_drawdown"])

@@ -56,6 +56,12 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
     drawdowns = (cumulative_returns / running_max) - 1
     max_drawdown = drawdowns.min()
 
+    calmar_ratio = (
+        cagr / abs(max_drawdown)
+        if max_drawdown != 0
+        else float("nan")
+    )
+
     historical_var_95 = daily_returns.quantile(0.05)
     historical_var_99 = daily_returns.quantile(0.01)
 
@@ -79,6 +85,7 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
         "downside_deviation": downside_deviation,
         "sortino_ratio": sortino_ratio,
         "max_drawdown": max_drawdown,
+        "calmar_ratio": calmar_ratio,
         "historical_var_95": historical_var_95,
         "historical_es_95": historical_es_95,
         "historical_var_99": historical_var_99,
@@ -354,6 +361,7 @@ def analyze_symbol(
         "downside_deviation": stock_stats["downside_deviation"],
         "sortino_ratio": stock_stats["sortino_ratio"],
         "max_drawdown": stock_stats["max_drawdown"],
+        "calmar_ratio": stock_stats["calmar_ratio"],
         "historical_var_95": stock_stats["historical_var_95"],
         "historical_es_95": stock_stats["historical_es_95"],
         "historical_var_99": stock_stats["historical_var_99"],
@@ -432,6 +440,7 @@ def main() -> None:
         "downside_deviation",
         "sortino_ratio",
         "max_drawdown",
+        "calmar_ratio",
         "historical_var_95",
         "historical_es_95",
         "historical_var_99",
@@ -449,6 +458,7 @@ def main() -> None:
                 "sharpe_ratio": lambda value: f"{value:.2f}",
                 "downside_deviation": lambda value: f"{value:.2%}",
                 "sortino_ratio": lambda value: f"{value:.2f}",
+                "calmar_ratio": lambda value: f"{value:.2f}",
                 "historical_var_95": lambda value: f"{value:.2%}",
                 "historical_es_95": lambda value: f"{value:.2%}",
                 "historical_var_99": lambda value: f"{value:.2%}",
