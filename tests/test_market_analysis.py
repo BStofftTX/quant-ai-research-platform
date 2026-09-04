@@ -198,3 +198,14 @@ def test_create_risk_report():
         "historical_var_99",
         "historical_es_99",
     }
+
+def test_calculate_statistics_includes_sortino():
+    data = pd.DataFrame(
+        {"Close": [100.0, 102.0, 101.0, 99.0, 103.0, 98.0, 104.0]}
+    )
+
+    stats = calculate_statistics(data)
+
+    assert stats["downside_deviation"] > 0
+    assert "sortino_ratio" in stats
+    assert stats["sortino_ratio"] == stats["average_daily_return"] * 252 / stats["downside_deviation"]

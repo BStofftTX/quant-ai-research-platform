@@ -40,6 +40,17 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
         else float("nan")
     )
 
+    downside_returns = daily_returns.clip(upper=0)
+    downside_deviation = math.sqrt(
+        (downside_returns ** 2).mean()
+    ) * math.sqrt(TRADING_DAYS)
+
+    sortino_ratio = (
+        annualized_return / downside_deviation
+        if downside_deviation != 0
+        else float("nan")
+    )
+
     cumulative_returns = (1 + daily_returns).cumprod()
     running_max = cumulative_returns.cummax()
     drawdowns = (cumulative_returns / running_max) - 1
@@ -65,6 +76,8 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
         "daily_volatility": daily_volatility,
         "annualized_volatility": annualized_volatility,
         "sharpe_ratio": sharpe_ratio,
+        "downside_deviation": downside_deviation,
+        "sortino_ratio": sortino_ratio,
         "max_drawdown": max_drawdown,
         "historical_var_95": historical_var_95,
         "historical_es_95": historical_es_95,
@@ -338,6 +351,8 @@ def analyze_symbol(
         "cagr": stock_stats["cagr"],
         "annualized_volatility": stock_stats["annualized_volatility"],
         "sharpe_ratio": stock_stats["sharpe_ratio"],
+        "downside_deviation": stock_stats["downside_deviation"],
+        "sortino_ratio": stock_stats["sortino_ratio"],
         "max_drawdown": stock_stats["max_drawdown"],
         "historical_var_95": stock_stats["historical_var_95"],
         "historical_es_95": stock_stats["historical_es_95"],
@@ -414,6 +429,8 @@ def main() -> None:
         "excess_return",
         "annualized_volatility",
         "sharpe_ratio",
+        "downside_deviation",
+        "sortino_ratio",
         "max_drawdown",
         "historical_var_95",
         "historical_es_95",
@@ -430,6 +447,8 @@ def main() -> None:
                 "excess_return": lambda value: f"{value:.2%}",
                 "annualized_volatility": lambda value: f"{value:.2%}",
                 "sharpe_ratio": lambda value: f"{value:.2f}",
+                "downside_deviation": lambda value: f"{value:.2%}",
+                "sortino_ratio": lambda value: f"{value:.2f}",
                 "historical_var_95": lambda value: f"{value:.2%}",
                 "historical_es_95": lambda value: f"{value:.2%}",
                 "historical_var_99": lambda value: f"{value:.2%}",
