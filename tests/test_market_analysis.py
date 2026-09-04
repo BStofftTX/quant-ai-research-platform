@@ -8,6 +8,7 @@ from quant_ai_research_platform.market_analysis import (
     calculate_rolling_metrics,
     find_abnormal_returns,
     calculate_statistics,
+    create_risk_report,
 )
 
 
@@ -179,3 +180,21 @@ def test_calculate_statistics_includes_tail_risk():
     assert stats["historical_es_95"] <= stats["historical_var_95"]
     assert stats["historical_var_99"] <= stats["historical_var_95"]
     assert stats["historical_es_99"] <= stats["historical_var_99"]
+
+
+def test_create_risk_report():
+    data = pd.DataFrame(
+        {"Close": [100.0, 102.0, 101.0, 99.0, 95.0, 97.0, 94.0]}
+    )
+
+    report = create_risk_report(data)
+
+    assert set(report) == {
+        "annualized_volatility",
+        "sharpe_ratio",
+        "max_drawdown",
+        "historical_var_95",
+        "historical_es_95",
+        "historical_var_99",
+        "historical_es_99",
+    }

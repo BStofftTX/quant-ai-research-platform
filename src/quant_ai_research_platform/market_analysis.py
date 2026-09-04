@@ -127,6 +127,22 @@ def calculate_rolling_metrics(
 
 
 
+def create_risk_report(data: pd.DataFrame) -> dict:
+    """Create a concise risk report from market data."""
+    stats = calculate_statistics(data)
+
+    return {
+        "annualized_volatility": stats["annualized_volatility"],
+        "sharpe_ratio": stats["sharpe_ratio"],
+        "max_drawdown": stats["max_drawdown"],
+        "historical_var_95": stats["historical_var_95"],
+        "historical_es_95": stats["historical_es_95"],
+        "historical_var_99": stats["historical_var_99"],
+        "historical_es_99": stats["historical_es_99"],
+    }
+
+
+
 def calculate_benchmark_metrics(
     stock_data: pd.DataFrame,
     benchmark_data: pd.DataFrame,
