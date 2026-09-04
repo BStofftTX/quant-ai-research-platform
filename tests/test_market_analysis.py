@@ -167,3 +167,15 @@ def test_factor_regression_inference_fields():
     assert result["beta_standard_error"] > 0
     assert result["beta_ci_lower"] < result["beta"] < result["beta_ci_upper"]
     assert 0 <= result["beta_p_value"] <= 1
+
+def test_calculate_statistics_includes_tail_risk():
+    data = pd.DataFrame(
+        {"Close": [100.0, 102.0, 101.0, 99.0, 95.0, 97.0, 94.0]}
+    )
+
+    stats = calculate_statistics(data)
+
+    assert stats["historical_var_95"] <= 0
+    assert stats["historical_es_95"] <= stats["historical_var_95"]
+    assert stats["historical_var_99"] <= stats["historical_var_95"]
+    assert stats["historical_es_99"] <= stats["historical_var_99"]

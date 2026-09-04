@@ -45,6 +45,17 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
     drawdowns = (cumulative_returns / running_max) - 1
     max_drawdown = drawdowns.min()
 
+    historical_var_95 = daily_returns.quantile(0.05)
+    historical_var_99 = daily_returns.quantile(0.01)
+
+    historical_es_95 = daily_returns[
+        daily_returns <= historical_var_95
+    ].mean()
+
+    historical_es_99 = daily_returns[
+        daily_returns <= historical_var_99
+    ].mean()
+
     return {
         "starting_price": starting_price,
         "ending_price": ending_price,
@@ -55,6 +66,10 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
         "annualized_volatility": annualized_volatility,
         "sharpe_ratio": sharpe_ratio,
         "max_drawdown": max_drawdown,
+        "historical_var_95": historical_var_95,
+        "historical_es_95": historical_es_95,
+        "historical_var_99": historical_var_99,
+        "historical_es_99": historical_es_99,
     }
 
 
