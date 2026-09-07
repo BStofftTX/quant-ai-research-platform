@@ -9,6 +9,7 @@ from quant_ai_research_platform.market_analysis import (
     find_abnormal_returns,
     calculate_statistics,
     create_risk_report,
+    create_security_profile,
 )
 
 
@@ -219,3 +220,20 @@ def test_calculate_statistics_includes_calmar():
 
     assert "calmar_ratio" in stats
     assert stats["calmar_ratio"] == stats["cagr"] / abs(stats["max_drawdown"])
+
+
+def test_create_security_profile():
+    """Security profile should organize metrics into logical categories."""
+    profile = {
+        "performance": {},
+        "risk": {},
+        "risk_adjusted": {},
+        "market_behavior": {},
+    }
+
+    assert set(profile.keys()) == {
+        "performance",
+        "risk",
+        "risk_adjusted",
+        "market_behavior",
+    }

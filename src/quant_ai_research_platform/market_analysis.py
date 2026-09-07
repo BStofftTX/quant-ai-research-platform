@@ -219,6 +219,32 @@ def calculate_benchmark_metrics(
         "alpha": alpha,
     }
 
+
+def create_security_profile(stats: dict, benchmark: dict) -> dict:
+    """Organize existing security metrics into logical categories."""
+    return {
+        "performance": {
+            "total_return": stats["total_return"],
+            "cagr": stats["cagr"],
+        },
+        "risk": {
+            "annualized_volatility": stats["annualized_volatility"],
+            "max_drawdown": stats["max_drawdown"],
+        },
+        "risk_adjusted": {
+            "sharpe_ratio": stats["sharpe_ratio"],
+            "sortino_ratio": stats["sortino_ratio"],
+            "calmar_ratio": stats["calmar_ratio"],
+        },
+        "market_behavior": {
+            "correlation": benchmark["correlation"],
+            "r_squared": benchmark["r_squared"],
+            "beta": benchmark["beta"],
+            "alpha": benchmark["alpha"],
+        },
+    }
+
+
 def calculate_factor_regression(
     stock_data: pd.DataFrame,
     factor_data: pd.DataFrame,
