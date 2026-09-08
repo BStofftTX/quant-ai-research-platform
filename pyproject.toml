@@ -1,7 +1,7 @@
 [project]
 name = "quant-ai-research-platform"
 version = "0.1.0"
-description = "Add your description here"
+description = "Quantitative research platform for market analysis, risk modeling, and AI/ML research"
 readme = "README.md"
 authors = [
     { name = "stofftbruce", email = "brucestofft@gmail.com" }
