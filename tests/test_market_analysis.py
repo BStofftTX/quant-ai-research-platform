@@ -348,3 +348,30 @@ def test_moving_average_signals():
     expected = pd.Series([0.0, 0.0, 1.0, 1.0, 1.0], name="signal")
 
     pd.testing.assert_series_equal(result, expected)
+
+def test_moving_average_strategy_backtest():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import (
+        moving_average_signals,
+        run_strategy_backtest,
+    )
+
+    data = pd.DataFrame(
+        {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]}
+    )
+
+    signals = moving_average_signals(
+        data,
+        short_window=2,
+        long_window=3,
+    )
+
+    result = run_strategy_backtest(
+        data,
+        signals,
+        initial_value=100.0,
+    )
+
+    assert result["equity_curve"].iloc[-1] > 100.0
+    assert result["total_return"] > 0.0
+    assert result["max_drawdown"] <= 0.0
