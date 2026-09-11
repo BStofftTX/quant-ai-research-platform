@@ -406,3 +406,32 @@ def test_compare_strategy_to_buy_and_hold():
     )
     assert result["strategy_max_drawdown"] <= 0.0
 
+def test_create_strategy_evaluation():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import (
+        create_strategy_evaluation,
+        moving_average_signals,
+    )
+
+    data = pd.DataFrame(
+        {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]}
+    )
+
+    signals = moving_average_signals(
+        data,
+        short_window=2,
+        long_window=3,
+    )
+
+    result = create_strategy_evaluation(
+        data,
+        signals,
+        initial_value=100.0,
+    )
+
+    assert result["strategy_return"] > 0.0
+    assert result["buy_and_hold_return"] > 0.0
+    assert result["final_equity"] > 100.0
+    assert result["periods"] == 5
+    assert result["strategy_max_drawdown"] <= 0.0
+

@@ -135,3 +135,29 @@ def compare_strategy_to_buy_and_hold(
         "strategy_max_drawdown": strategy["max_drawdown"],
     }
 
+def create_strategy_evaluation(
+    data: pd.DataFrame,
+    signals: pd.Series,
+    initial_value: float = 1.0,
+) -> dict:
+    comparison = compare_strategy_to_buy_and_hold(
+        data,
+        signals,
+        initial_value=initial_value,
+    )
+
+    strategy = run_strategy_backtest(
+        data,
+        signals,
+        initial_value=initial_value,
+    )
+
+    return {
+        "strategy_return": comparison["strategy_return"],
+        "buy_and_hold_return": comparison["buy_and_hold_return"],
+        "excess_return": comparison["excess_return"],
+        "strategy_max_drawdown": comparison["strategy_max_drawdown"],
+        "final_equity": strategy["equity_curve"].iloc[-1],
+        "periods": len(data) - 1,
+    }
+
