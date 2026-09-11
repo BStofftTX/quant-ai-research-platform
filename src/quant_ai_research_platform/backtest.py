@@ -50,3 +50,16 @@ def summarize_backtest(
         "excess_return": excess_return(total_return, benchmark_return),
         "max_drawdown": max_drawdown(equity_curve),
     }
+
+def calculate_strategy_returns(
+    data: pd.DataFrame,
+    signals: pd.Series,
+) -> pd.Series:
+    if len(data) != len(signals):
+        raise ValueError("data and signals must have the same length")
+
+    market_returns = data["Close"].pct_change().fillna(0.0)
+    strategy_returns = market_returns * signals.shift(1).fillna(0.0)
+
+    return strategy_returns
+

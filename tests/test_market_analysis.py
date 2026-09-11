@@ -289,3 +289,16 @@ def test_summarize_backtest():
     assert result["excess_return"] == pytest.approx(0.12)
     assert result["max_drawdown"] == pytest.approx((105.0 / 110.0) - 1)
 
+
+def test_calculate_strategy_returns_uses_prior_signal():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import calculate_strategy_returns
+
+    data = pd.DataFrame({"Close": [100.0, 110.0, 121.0]})
+    signals = pd.Series([0.0, 1.0, 1.0])
+
+    result = calculate_strategy_returns(data, signals)
+
+    assert result.iloc[0] == pytest.approx(0.0)
+    assert result.iloc[1] == pytest.approx(0.0)
+    assert result.iloc[2] == pytest.approx(0.10)
