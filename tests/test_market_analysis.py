@@ -1,3 +1,13 @@
+import pytest
+def test_buy_and_hold_return():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import buy_and_hold_return
+
+    data = pd.DataFrame({"Close": [100.0, 110.0]})
+
+    result = buy_and_hold_return(data)
+
+    assert result == pytest.approx(0.10)
 from datetime import date
 
 import pandas as pd
