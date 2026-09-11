@@ -111,3 +111,27 @@ def moving_average_signals(
 
     return (short_ma > long_ma).astype(float).rename("signal")
 
+def compare_strategy_to_buy_and_hold(
+    data: pd.DataFrame,
+    signals: pd.Series,
+    initial_value: float = 1.0,
+) -> dict:
+    strategy = run_strategy_backtest(
+        data,
+        signals,
+        initial_value=initial_value,
+    )
+
+    buy_hold_return = buy_and_hold_return(data)
+    strategy_return = strategy["total_return"]
+
+    return {
+        "strategy_return": strategy_return,
+        "buy_and_hold_return": buy_hold_return,
+        "excess_return": excess_return(
+            strategy_return,
+            buy_hold_return,
+        ),
+        "strategy_max_drawdown": strategy["max_drawdown"],
+    }
+

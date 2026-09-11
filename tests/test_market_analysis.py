@@ -375,3 +375,34 @@ def test_moving_average_strategy_backtest():
     assert result["equity_curve"].iloc[-1] > 100.0
     assert result["total_return"] > 0.0
     assert result["max_drawdown"] <= 0.0
+
+def test_compare_strategy_to_buy_and_hold():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import (
+        compare_strategy_to_buy_and_hold,
+        moving_average_signals,
+    )
+
+    data = pd.DataFrame(
+        {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]}
+    )
+
+    signals = moving_average_signals(
+        data,
+        short_window=2,
+        long_window=3,
+    )
+
+    result = compare_strategy_to_buy_and_hold(
+        data,
+        signals,
+        initial_value=100.0,
+    )
+
+    assert result["strategy_return"] > 0.0
+    assert result["buy_and_hold_return"] > 0.0
+    assert result["excess_return"] == pytest.approx(
+        result["strategy_return"] - result["buy_and_hold_return"]
+    )
+    assert result["strategy_max_drawdown"] <= 0.0
+
