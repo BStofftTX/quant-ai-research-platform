@@ -270,3 +270,22 @@ def test_max_drawdown():
     result = max_drawdown(equity_curve)
 
     assert result == pytest.approx(-0.25)
+
+def test_summarize_backtest():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import summarize_backtest
+
+    data = pd.DataFrame({"Close": [100.0, 110.0, 105.0, 120.0]})
+
+    result = summarize_backtest(
+        data,
+        benchmark_return=0.08,
+        periods_per_year=3,
+    )
+
+    assert result["total_return"] == pytest.approx(0.20)
+    assert result["annualized_return"] == pytest.approx(0.20)
+    assert result["benchmark_return"] == pytest.approx(0.08)
+    assert result["excess_return"] == pytest.approx(0.12)
+    assert result["max_drawdown"] == pytest.approx((105.0 / 110.0) - 1)
+

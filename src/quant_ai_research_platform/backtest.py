@@ -25,3 +25,28 @@ def max_drawdown(equity_curve: pd.Series) -> float:
     drawdown = (equity_curve / running_max) - 1
 
     return drawdown.min()
+
+def summarize_backtest(
+    data: pd.DataFrame,
+    benchmark_return: float,
+    periods_per_year: int = 252,
+) -> dict:
+    if len(data) < 2:
+        raise ValueError("data must contain at least two rows")
+
+    total_return = buy_and_hold_return(data)
+    periods = len(data) - 1
+
+    equity_curve = data["Close"] / data["Close"].iloc[0]
+
+    return {
+        "total_return": total_return,
+        "annualized_return": annualized_return(
+            total_return,
+            periods=periods,
+            periods_per_year=periods_per_year,
+        ),
+        "benchmark_return": benchmark_return,
+        "excess_return": excess_return(total_return, benchmark_return),
+        "max_drawdown": max_drawdown(equity_curve),
+    }
