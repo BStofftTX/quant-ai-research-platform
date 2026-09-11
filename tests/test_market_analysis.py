@@ -247,3 +247,9 @@ def test_create_security_profile():
         "risk_adjusted",
         "market_behavior",
     }
+def test_annualized_return():
+    from quant_ai_research_platform.backtest import annualized_return
+
+    result = annualized_return(0.10, periods=252)
+
+    assert result == pytest.approx(0.10)
