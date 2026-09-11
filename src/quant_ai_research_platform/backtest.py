@@ -73,3 +73,24 @@ def build_equity_curve(
 
     return initial_value * (1.0 + strategy_returns).cumprod()
 
+
+def run_strategy_backtest(
+    data: pd.DataFrame,
+    signals: pd.Series,
+    initial_value: float = 1.0,
+) -> dict:
+    strategy_returns = calculate_strategy_returns(data, signals)
+    equity_curve = build_equity_curve(
+        strategy_returns,
+        initial_value=initial_value,
+    )
+
+    total_return = (equity_curve.iloc[-1] / initial_value) - 1
+
+    return {
+        "strategy_returns": strategy_returns,
+        "equity_curve": equity_curve,
+        "total_return": total_return,
+        "max_drawdown": max_drawdown(equity_curve),
+    }
+

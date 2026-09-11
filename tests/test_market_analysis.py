@@ -315,3 +315,20 @@ def test_build_equity_curve():
     assert result.iloc[1] == pytest.approx(110.0)
     assert result.iloc[2] == pytest.approx(104.5)
 
+
+def test_run_strategy_backtest():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import run_strategy_backtest
+
+    data = pd.DataFrame({"Close": [100.0, 110.0, 121.0]})
+    signals = pd.Series([0.0, 1.0, 1.0])
+
+    result = run_strategy_backtest(
+        data,
+        signals,
+        initial_value=100.0,
+    )
+
+    assert result["equity_curve"].iloc[-1] == pytest.approx(110.0)
+    assert result["total_return"] == pytest.approx(0.10)
+    assert result["max_drawdown"] == pytest.approx(0.0)
