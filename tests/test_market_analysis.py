@@ -260,3 +260,13 @@ def test_excess_return():
     result = excess_return(0.15, 0.10)
 
     assert result == pytest.approx(0.05)
+
+def test_max_drawdown():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import max_drawdown
+
+    equity_curve = pd.Series([100.0, 120.0, 90.0, 110.0])
+
+    result = max_drawdown(equity_curve)
+
+    assert result == pytest.approx(-0.25)

@@ -16,3 +16,12 @@ def buy_and_hold_return(data: pd.DataFrame) -> float:
 
 def excess_return(strategy_return: float, benchmark_return: float) -> float:
     return strategy_return - benchmark_return
+
+def max_drawdown(equity_curve: pd.Series) -> float:
+    if equity_curve.empty:
+        raise ValueError("equity_curve must not be empty")
+
+    running_max = equity_curve.cummax()
+    drawdown = (equity_curve / running_max) - 1
+
+    return drawdown.min()
