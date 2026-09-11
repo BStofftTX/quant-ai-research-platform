@@ -94,3 +94,20 @@ def run_strategy_backtest(
         "max_drawdown": max_drawdown(equity_curve),
     }
 
+
+def moving_average_signals(
+    data: pd.DataFrame,
+    short_window: int = 20,
+    long_window: int = 50,
+) -> pd.Series:
+    if short_window <= 0 or long_window <= 0:
+        raise ValueError("window sizes must be positive")
+
+    if short_window >= long_window:
+        raise ValueError("short_window must be less than long_window")
+
+    short_ma = data["Close"].rolling(short_window).mean()
+    long_ma = data["Close"].rolling(long_window).mean()
+
+    return (short_ma > long_ma).astype(float).rename("signal")
+

@@ -332,3 +332,19 @@ def test_run_strategy_backtest():
     assert result["equity_curve"].iloc[-1] == pytest.approx(110.0)
     assert result["total_return"] == pytest.approx(0.10)
     assert result["max_drawdown"] == pytest.approx(0.0)
+
+def test_moving_average_signals():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import moving_average_signals
+
+    data = pd.DataFrame({"Close": [1.0, 2.0, 3.0, 4.0, 5.0]})
+
+    result = moving_average_signals(
+        data,
+        short_window=2,
+        long_window=3,
+    )
+
+    expected = pd.Series([0.0, 0.0, 1.0, 1.0, 1.0], name="signal")
+
+    pd.testing.assert_series_equal(result, expected)
