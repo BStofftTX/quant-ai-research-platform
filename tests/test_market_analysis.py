@@ -253,3 +253,10 @@ def test_annualized_return():
     result = annualized_return(0.10, periods=252)
 
     assert result == pytest.approx(0.10)
+
+def test_excess_return():
+    from quant_ai_research_platform.backtest import excess_return
+
+    result = excess_return(0.15, 0.10)
+
+    assert result == pytest.approx(0.05)

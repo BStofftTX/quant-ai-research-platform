@@ -14,3 +14,5 @@ def buy_and_hold_return(data: pd.DataFrame) -> float:
 
     return (end_price / start_price) - 1
 
+def excess_return(strategy_return: float, benchmark_return: float) -> float:
+    return strategy_return - benchmark_return
