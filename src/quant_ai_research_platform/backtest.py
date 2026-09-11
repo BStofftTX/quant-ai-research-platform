@@ -63,3 +63,13 @@ def calculate_strategy_returns(
 
     return strategy_returns
 
+
+def build_equity_curve(
+    strategy_returns: pd.Series,
+    initial_value: float = 1.0,
+) -> pd.Series:
+    if strategy_returns.empty:
+        raise ValueError("strategy_returns must not be empty")
+
+    return initial_value * (1.0 + strategy_returns).cumprod()
+

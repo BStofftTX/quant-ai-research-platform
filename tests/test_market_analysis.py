@@ -302,3 +302,16 @@ def test_calculate_strategy_returns_uses_prior_signal():
     assert result.iloc[0] == pytest.approx(0.0)
     assert result.iloc[1] == pytest.approx(0.0)
     assert result.iloc[2] == pytest.approx(0.10)
+
+def test_build_equity_curve():
+    import pandas as pd
+    from quant_ai_research_platform.backtest import build_equity_curve
+
+    strategy_returns = pd.Series([0.0, 0.10, -0.05])
+
+    result = build_equity_curve(strategy_returns, initial_value=100.0)
+
+    assert result.iloc[0] == pytest.approx(100.0)
+    assert result.iloc[1] == pytest.approx(110.0)
+    assert result.iloc[2] == pytest.approx(104.5)
+
