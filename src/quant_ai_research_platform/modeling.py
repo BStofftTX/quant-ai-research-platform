@@ -1,5 +1,6 @@
 import pandas as pd
 
+from sklearn.linear_model import LogisticRegression
 
 def create_features(data: pd.DataFrame) -> pd.DataFrame:
     features = pd.DataFrame(index=data.index)
@@ -48,3 +49,12 @@ def separate_features_target(
     target = dataset["target"].copy()
 
     return features, target
+
+def train_logistic_regression(
+    features: pd.DataFrame,
+    target: pd.Series,
+) -> LogisticRegression:
+    model = LogisticRegression(max_iter=1000)
+    model.fit(features, target)
+
+    return model
