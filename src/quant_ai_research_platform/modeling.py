@@ -310,3 +310,83 @@ def select_threshold_on_validation(
     return best_row.to_dict()
 
 
+def run_validated_ml_backtest(
+    data: pd.DataFrame,
+    thresholds: list[float] | None = None,
+    train_fraction: float = 0.6,
+    validation_fraction: float = 0.2,
+) -> dict:
+    if thresholds is None:
+        thresholds = [0.50, 0.55, 0.60, 0.65]
+
+    dataset = create_model_dataset(data)
+
+    train, validation, test = split_train_validation_test(
+        dataset,
+        train_fraction=train_fraction,
+        validation_fraction=validation_fraction,
+    )
+
+    train_features, train_target = separate_features_target(train)
+    validation_features, _ = separate_features_target(validation)
+    test_features, test_target = separate_features_target(test)
+
+    model = train_logistic_regression(
+        train_features,
+        train_target,
+    )
+
+    validation_data = data.loc[validation_features.index]
+
+    validation_results = []
+
+    for threshold in thresholds:
+        validation_signals = generate_threshold_signals(
+            model,
+            validation_features,
+            threshold=threshold,
+        )
+
+        result = compare_strategy_to_buy_and_hold(
+            validation_data,
+            validation_signals,
+        )
+
+        validation_results.append(
+            {
+                "threshold": threshold,
+                "excess_return": result["excess_return"],
+            }
+        )
+
+    validation_comparison = pd.DataFrame(validation_results)
+    best_row = validation_comparison.loc[
+        validation_comparison["excess_return"].idxmax()
+    ]
+    best_threshold = float(best_row["threshold"])
+
+    test_signals = generate_threshold_signals(
+        model,
+        test_features,
+        threshold=best_threshold,
+    )
+
+    test_data = data.loc[test_features.index]
+
+    trading_results = compare_strategy_to_buy_and_hold(
+        test_data,
+        test_signals,
+    )
+
+    prediction_results = evaluate_model_predictions(
+        model,
+        test_features,
+        test_target,
+    )
+
+    return {
+        **trading_results,
+        **prediction_results,
+        "selected_threshold": best_threshold,
+    }
+
