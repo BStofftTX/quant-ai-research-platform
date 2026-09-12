@@ -180,3 +180,36 @@ def generate_threshold_signals(
 
     return (probabilities >= threshold).astype(float).rename("signal")
 
+def compare_thresholds(
+    data: pd.DataFrame,
+    thresholds: list[float] | None = None,
+    train_fraction: float = 0.8,
+) -> pd.DataFrame:
+    if thresholds is None:
+        thresholds = [0.50, 0.55, 0.60, 0.65]
+
+    results = []
+
+    for threshold in thresholds:
+        result = run_ml_backtest(
+            data,
+            train_fraction=train_fraction,
+            threshold=threshold,
+        )
+
+        results.append(
+            {
+                "threshold": threshold,
+                "strategy_return": result["strategy_return"],
+                "buy_and_hold_return": result["buy_and_hold_return"],
+                "excess_return": result["excess_return"],
+                "strategy_max_drawdown": result["strategy_max_drawdown"],
+                "accuracy": result["accuracy"],
+                "precision": result["precision"],
+                "recall": result["recall"],
+                "f1": result["f1"],
+            }
+        )
+
+    return pd.DataFrame(results)
+
