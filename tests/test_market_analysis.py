@@ -1181,3 +1181,26 @@ def test_run_walk_forward_research():
     assert not result["results"].empty
     assert result["summary"]["splits"] == len(result["results"])
 
+
+def test_calculate_walk_forward_stability():
+    import pandas as pd
+    import pytest
+    from quant_ai_research_platform.modeling import (
+        calculate_walk_forward_stability,
+    )
+
+    results = pd.DataFrame(
+        {
+            "strategy_return": [0.02, -0.01, 0.03, 0.04],
+            "excess_return": [0.01, -0.02, 0.00, 0.03],
+        }
+    )
+
+    stability = calculate_walk_forward_stability(results)
+
+    assert stability["profitable_split_rate"] == pytest.approx(0.75)
+    assert stability["beat_buy_and_hold_rate"] == pytest.approx(0.50)
+    assert stability["median_excess_return"] == pytest.approx(0.005)
+    assert stability["worst_excess_return"] == pytest.approx(-0.02)
+    assert stability["best_excess_return"] == pytest.approx(0.03)
+

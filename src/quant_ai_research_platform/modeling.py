@@ -519,3 +519,22 @@ def run_walk_forward_research(
         "summary": summary,
     }
 
+
+def calculate_walk_forward_stability(
+    results: pd.DataFrame,
+) -> dict:
+    if results.empty:
+        raise ValueError("results must not be empty")
+
+    return {
+        "profitable_split_rate": (
+            results["strategy_return"] > 0
+        ).mean(),
+        "beat_buy_and_hold_rate": (
+            results["excess_return"] > 0
+        ).mean(),
+        "median_excess_return": results["excess_return"].median(),
+        "worst_excess_return": results["excess_return"].min(),
+        "best_excess_return": results["excess_return"].max(),
+    }
+
