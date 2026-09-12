@@ -99,6 +99,7 @@ def evaluate_model_strategy(
 def run_ml_backtest(
     data: pd.DataFrame,
     train_fraction: float = 0.8,
+    threshold: float = 0.6,
 ) -> dict:
     dataset = create_model_dataset(data)
 
@@ -115,10 +116,17 @@ def run_ml_backtest(
         train_target,
     )
 
-    trading_results = evaluate_model_strategy(
-        data,
+    signals = generate_threshold_signals(
         model,
         test_features,
+        threshold=threshold,
+    )
+
+    aligned_data = data.loc[test_features.index]
+
+    trading_results = compare_strategy_to_buy_and_hold(
+        aligned_data,
+        signals,
     )
 
     prediction_results = evaluate_model_predictions(
@@ -130,6 +138,7 @@ def run_ml_backtest(
     return {
         **trading_results,
         **prediction_results,
+        "threshold": threshold,
     }
 
 def evaluate_model_predictions(

@@ -684,6 +684,9 @@ def test_run_ml_backtest():
     assert "recall" in result
     assert "f1" in result
 
+    assert "threshold" in result
+    assert result["threshold"] == 0.6
+
 def test_evaluate_model_predictions():
     import pandas as pd
     from quant_ai_research_platform.modeling import (
