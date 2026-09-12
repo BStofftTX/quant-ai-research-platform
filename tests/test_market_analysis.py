@@ -435,3 +435,34 @@ def test_create_strategy_evaluation():
     assert result["periods"] == 5
     assert result["strategy_max_drawdown"] <= 0.0
 
+def test_create_features():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import create_features
+
+    data = pd.DataFrame(
+        {
+            "Close": [
+                100.0,
+                101.0,
+                102.0,
+                103.0,
+                104.0,
+                105.0,
+                106.0,
+                107.0,
+                108.0,
+                109.0,
+            ]
+        }
+    )
+
+    result = create_features(data)
+
+    assert list(result.columns) == [
+        "return_1d",
+        "return_5d",
+        "volatility_5d",
+    ]
+    assert not result.empty
+    assert not result.isna().any().any()
+
