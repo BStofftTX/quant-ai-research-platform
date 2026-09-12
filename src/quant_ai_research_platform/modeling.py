@@ -513,12 +513,13 @@ def run_walk_forward_research(
     )
 
     summary = summarize_walk_forward_results(results)
+    stability = calculate_walk_forward_stability(results)
 
     return {
         "results": results,
         "summary": summary,
+        "stability": stability,
     }
-
 
 def calculate_walk_forward_stability(
     results: pd.DataFrame,

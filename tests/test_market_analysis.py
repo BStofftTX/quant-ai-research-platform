@@ -1182,6 +1182,13 @@ def test_run_walk_forward_research():
     assert result["summary"]["splits"] == len(result["results"])
 
 
+    assert "stability" in result
+    assert "profitable_split_rate" in result["stability"]
+    assert "beat_buy_and_hold_rate" in result["stability"]
+    assert "median_excess_return" in result["stability"]
+    assert "worst_excess_return" in result["stability"]
+    assert "best_excess_return" in result["stability"]
+
 def test_calculate_walk_forward_stability():
     import pandas as pd
     import pytest
