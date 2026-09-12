@@ -483,3 +483,35 @@ def test_create_target():
 
     pd.testing.assert_series_equal(result, expected)
 
+def test_create_model_dataset():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import create_model_dataset
+
+    data = pd.DataFrame(
+        {
+            "Close": [
+                100.0,
+                101.0,
+                102.0,
+                103.0,
+                104.0,
+                105.0,
+                106.0,
+                107.0,
+                108.0,
+                109.0,
+            ]
+        }
+    )
+
+    result = create_model_dataset(data)
+
+    assert list(result.columns) == [
+        "return_1d",
+        "return_5d",
+        "volatility_5d",
+        "target",
+    ]
+    assert not result.empty
+    assert not result.isna().any().any()
+

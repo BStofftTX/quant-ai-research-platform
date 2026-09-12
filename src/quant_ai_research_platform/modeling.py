@@ -15,3 +15,11 @@ def create_target(data: pd.DataFrame) -> pd.Series:
     target = (future_return > 0).astype(int)
 
     return target.iloc[:-1].rename("target")
+
+def create_model_dataset(data: pd.DataFrame) -> pd.DataFrame:
+    features = create_features(data)
+    target = create_target(data)
+
+    dataset = features.join(target, how="inner")
+
+    return dataset.dropna()
