@@ -480,3 +480,21 @@ def run_walk_forward_backtest(
 
     return pd.DataFrame(results)
 
+def summarize_walk_forward_results(
+    results: pd.DataFrame,
+) -> dict:
+    if results.empty:
+        raise ValueError("results must not be empty")
+
+    return {
+        "splits": len(results),
+        "average_strategy_return": results["strategy_return"].mean(),
+        "average_buy_and_hold_return": results["buy_and_hold_return"].mean(),
+        "average_excess_return": results["excess_return"].mean(),
+        "average_max_drawdown": results["strategy_max_drawdown"].mean(),
+        "average_accuracy": results["accuracy"].mean(),
+        "average_precision": results["precision"].mean(),
+        "average_recall": results["recall"].mean(),
+        "average_f1": results["f1"].mean(),
+    }
+

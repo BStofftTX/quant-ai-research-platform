@@ -1095,3 +1095,31 @@ def test_run_walk_forward_backtest():
     assert "recall" in result.columns
     assert "f1" in result.columns
 
+def test_summarize_walk_forward_results():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import summarize_walk_forward_results
+
+    results = pd.DataFrame(
+        {
+            "strategy_return": [0.02, 0.04, 0.06],
+            "buy_and_hold_return": [0.01, 0.03, 0.05],
+            "excess_return": [0.01, 0.01, 0.01],
+            "strategy_max_drawdown": [-0.02, -0.03, -0.01],
+            "accuracy": [0.60, 0.70, 0.80],
+            "precision": [0.55, 0.65, 0.75],
+            "recall": [0.50, 0.60, 0.70],
+            "f1": [0.52, 0.62, 0.72],
+        }
+    )
+
+    summary = summarize_walk_forward_results(results)
+
+    assert summary["splits"] == 3
+    assert summary["average_strategy_return"] == 0.04
+    assert summary["average_buy_and_hold_return"] == 0.03
+    assert summary["average_excess_return"] == 0.01
+
+    import pytest
+    assert summary["average_accuracy"] == pytest.approx(0.70)
+
+
