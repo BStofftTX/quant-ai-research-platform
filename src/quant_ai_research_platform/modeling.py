@@ -498,3 +498,24 @@ def summarize_walk_forward_results(
         "average_f1": results["f1"].mean(),
     }
 
+
+def run_walk_forward_research(
+    data: pd.DataFrame,
+    initial_train_size: int,
+    test_size: int,
+    threshold: float = 0.6,
+) -> dict:
+    results = run_walk_forward_backtest(
+        data,
+        initial_train_size=initial_train_size,
+        test_size=test_size,
+        threshold=threshold,
+    )
+
+    summary = summarize_walk_forward_results(results)
+
+    return {
+        "results": results,
+        "summary": summary,
+    }
+

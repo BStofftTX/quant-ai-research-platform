@@ -1123,3 +1123,61 @@ def test_summarize_walk_forward_results():
     assert summary["average_accuracy"] == pytest.approx(0.70)
 
 
+def test_run_walk_forward_research():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import run_walk_forward_research
+
+    data = pd.DataFrame(
+        {
+            "Close": [
+                100.0,
+                101.0,
+                102.0,
+                103.0,
+                104.0,
+                105.0,
+                104.0,
+                106.0,
+                107.0,
+                108.0,
+                109.0,
+                110.0,
+                111.0,
+                112.0,
+                113.0,
+                112.0,
+                114.0,
+                115.0,
+                116.0,
+                117.0,
+                118.0,
+                117.0,
+                119.0,
+                120.0,
+                121.0,
+                122.0,
+                121.0,
+                123.0,
+                124.0,
+                125.0,
+                126.0,
+                125.0,
+                127.0,
+                128.0,
+                129.0,
+            ]
+        }
+    )
+
+    result = run_walk_forward_research(
+        data,
+        initial_train_size=12,
+        test_size=4,
+        threshold=0.6,
+    )
+
+    assert "results" in result
+    assert "summary" in result
+    assert not result["results"].empty
+    assert result["summary"]["splits"] == len(result["results"])
+
