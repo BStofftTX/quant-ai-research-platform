@@ -23,3 +23,17 @@ def create_model_dataset(data: pd.DataFrame) -> pd.DataFrame:
     dataset = features.join(target, how="inner")
 
     return dataset.dropna()
+
+def split_model_dataset(
+    dataset: pd.DataFrame,
+    train_fraction: float = 0.8,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    if not 0.0 < train_fraction < 1.0:
+        raise ValueError("train_fraction must be between 0 and 1")
+
+    split_index = int(len(dataset) * train_fraction)
+
+    train = dataset.iloc[:split_index].copy()
+    test = dataset.iloc[split_index:].copy()
+
+    return train, test

@@ -515,3 +515,21 @@ def test_create_model_dataset():
     assert not result.empty
     assert not result.isna().any().any()
 
+def test_split_model_dataset():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import split_model_dataset
+
+    dataset = pd.DataFrame(
+        {
+            "feature": [1, 2, 3, 4, 5],
+            "target": [0, 1, 0, 1, 1],
+        }
+    )
+
+    train, test = split_model_dataset(dataset, train_fraction=0.6)
+
+    assert len(train) == 3
+    assert len(test) == 2
+    assert train["feature"].tolist() == [1, 2, 3]
+    assert test["feature"].tolist() == [4, 5]
+
