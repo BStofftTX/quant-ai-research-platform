@@ -147,3 +147,14 @@ def evaluate_model_predictions(
         "f1": f1_score(target, predictions, zero_division=0),
         "confusion_matrix": matrix.tolist(),
     }
+def generate_prediction_probabilities(
+    model: LogisticRegression,
+    features: pd.DataFrame,
+) -> pd.Series:
+    probabilities = model.predict_proba(features)[:, 1]
+
+    return pd.Series(
+        probabilities,
+        index=features.index,
+        name="probability_up",
+    )

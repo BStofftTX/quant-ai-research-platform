@@ -718,3 +718,26 @@ def test_evaluate_model_predictions():
     assert len(result["confusion_matrix"]) == 2
     assert len(result["confusion_matrix"][0]) == 2
     assert len(result["confusion_matrix"][1]) == 2
+def test_generate_prediction_probabilities():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import (
+        generate_prediction_probabilities,
+        train_logistic_regression,
+    )
+
+    features = pd.DataFrame(
+        {
+            "return_1d": [0.01, -0.02, 0.03, -0.01, 0.04, -0.03],
+            "return_5d": [0.05, -0.01, 0.06, -0.02, 0.07, -0.04],
+            "volatility_5d": [0.02, 0.03, 0.02, 0.04, 0.01, 0.05],
+        }
+    )
+
+    target = pd.Series([1, 0, 1, 0, 1, 0], name="target")
+
+    model = train_logistic_regression(features, target)
+    probabilities = generate_prediction_probabilities(model, features)
+
+    assert len(probabilities) == len(features)
+    assert probabilities.name == "probability_up"
+    assert probabilities.between(0.0, 1.0).all()
