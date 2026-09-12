@@ -87,3 +87,28 @@ def evaluate_model_strategy(
         aligned_data,
         signals,
     )
+
+def run_ml_backtest(
+    data: pd.DataFrame,
+    train_fraction: float = 0.8,
+) -> dict:
+    dataset = create_model_dataset(data)
+
+    train, test = split_model_dataset(
+        dataset,
+        train_fraction=train_fraction,
+    )
+
+    train_features, train_target = separate_features_target(train)
+    test_features, _ = separate_features_target(test)
+
+    model = train_logistic_regression(
+        train_features,
+        train_target,
+    )
+
+    return evaluate_model_strategy(
+        data,
+        model,
+        test_features,
+    )

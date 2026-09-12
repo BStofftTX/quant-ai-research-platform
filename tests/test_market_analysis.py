@@ -638,3 +638,42 @@ def test_evaluate_model_strategy():
     assert "excess_return" in result
     assert "strategy_max_drawdown" in result
 
+
+def test_run_ml_backtest():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import run_ml_backtest
+
+    data = pd.DataFrame(
+        {
+            "Close": [
+                100.0,
+                101.0,
+                102.0,
+                103.0,
+                104.0,
+                105.0,
+                104.0,
+                106.0,
+                107.0,
+                108.0,
+                109.0,
+                110.0,
+                111.0,
+                112.0,
+                113.0,
+                112.0,
+                114.0,
+                115.0,
+                116.0,
+                117.0,
+            ]
+        }
+    )
+
+    result = run_ml_backtest(data, train_fraction=0.7)
+
+    assert "strategy_return" in result
+    assert "buy_and_hold_return" in result
+    assert "excess_return" in result
+    assert "strategy_max_drawdown" in result
+
