@@ -10,3 +10,8 @@ def create_features(data: pd.DataFrame) -> pd.DataFrame:
 
     return features.dropna()
 
+def create_target(data: pd.DataFrame) -> pd.Series:
+    future_return = data["Close"].shift(-1) / data["Close"] - 1
+    target = (future_return > 0).astype(int)
+
+    return target.iloc[:-1].rename("target")

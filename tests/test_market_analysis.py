@@ -466,3 +466,20 @@ def test_create_features():
     assert not result.empty
     assert not result.isna().any().any()
 
+def test_create_target():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import create_target
+
+    data = pd.DataFrame(
+        {"Close": [100.0, 110.0, 105.0, 120.0]}
+    )
+
+    result = create_target(data)
+
+    expected = pd.Series(
+        [1, 0, 1],
+        name="target",
+    )
+
+    pd.testing.assert_series_equal(result, expected)
+
