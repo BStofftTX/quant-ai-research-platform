@@ -158,3 +158,16 @@ def generate_prediction_probabilities(
         index=features.index,
         name="probability_up",
     )
+
+def generate_threshold_signals(
+    model: LogisticRegression,
+    features: pd.DataFrame,
+    threshold: float = 0.6,
+) -> pd.Series:
+    if not 0.0 < threshold < 1.0:
+        raise ValueError("threshold must be between 0 and 1")
+
+    probabilities = generate_prediction_probabilities(model, features)
+
+    return (probabilities >= threshold).astype(float).rename("signal")
+
