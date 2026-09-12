@@ -1,4 +1,5 @@
 import pytest
+
 def test_buy_and_hold_return():
     import pandas as pd
     from quant_ai_research_platform.backtest import buy_and_hold_return
@@ -8,6 +9,7 @@ def test_buy_and_hold_return():
     result = buy_and_hold_return(data)
 
     assert result == pytest.approx(0.10)
+
 from datetime import date
 
 import pandas as pd
@@ -699,5 +701,11 @@ def test_evaluate_model_predictions():
     result = evaluate_model_predictions(model, features, target)
 
     assert "accuracy" in result
-    assert 0.0 <= result["accuracy"] <= 1.0
+    assert "precision" in result
+    assert "recall" in result
+    assert "f1" in result
 
+    assert 0.0 <= result["accuracy"] <= 1.0
+    assert 0.0 <= result["precision"] <= 1.0
+    assert 0.0 <= result["recall"] <= 1.0
+    assert 0.0 <= result["f1"] <= 1.0
