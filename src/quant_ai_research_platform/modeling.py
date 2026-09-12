@@ -49,6 +49,34 @@ def split_model_dataset(
 
     return train, test
 
+def split_train_validation_test(
+    dataset: pd.DataFrame,
+    train_fraction: float = 0.6,
+    validation_fraction: float = 0.2,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    if train_fraction <= 0.0:
+        raise ValueError("train_fraction must be positive")
+
+    if validation_fraction <= 0.0:
+        raise ValueError("validation_fraction must be positive")
+
+    if train_fraction + validation_fraction >= 1.0:
+        raise ValueError(
+            "train_fraction + validation_fraction must be less than 1"
+        )
+
+    train_end = int(len(dataset) * train_fraction)
+    validation_end = int(
+        len(dataset) * (train_fraction + validation_fraction)
+    )
+
+    train = dataset.iloc[:train_end].copy()
+    validation = dataset.iloc[train_end:validation_end].copy()
+    test = dataset.iloc[validation_end:].copy()
+
+    return train, validation, test
+
+
 def separate_features_target(
     dataset: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.Series]:

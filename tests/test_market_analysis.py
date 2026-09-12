@@ -863,3 +863,28 @@ def test_select_best_threshold():
     assert "excess_return" in result
     assert result["threshold"] in [0.50, 0.60]
 
+def test_split_train_validation_test():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import split_train_validation_test
+
+    dataset = pd.DataFrame(
+        {
+            "feature": list(range(10)),
+            "target": [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        }
+    )
+
+    train, validation, test = split_train_validation_test(
+        dataset,
+        train_fraction=0.6,
+        validation_fraction=0.2,
+    )
+
+    assert len(train) == 6
+    assert len(validation) == 2
+    assert len(test) == 2
+
+    assert train["feature"].tolist() == [0, 1, 2, 3, 4, 5]
+    assert validation["feature"].tolist() == [6, 7]
+    assert test["feature"].tolist() == [8, 9]
+
