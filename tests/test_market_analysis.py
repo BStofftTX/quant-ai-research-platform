@@ -677,3 +677,27 @@ def test_run_ml_backtest():
     assert "excess_return" in result
     assert "strategy_max_drawdown" in result
 
+
+def test_evaluate_model_predictions():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import (
+        evaluate_model_predictions,
+        train_logistic_regression,
+    )
+
+    features = pd.DataFrame(
+        {
+            "return_1d": [0.01, -0.02, 0.03, -0.01, 0.04, -0.03],
+            "return_5d": [0.05, -0.01, 0.06, -0.02, 0.07, -0.04],
+            "volatility_5d": [0.02, 0.03, 0.02, 0.04, 0.01, 0.05],
+        }
+    )
+
+    target = pd.Series([1, 0, 1, 0, 1, 0], name="target")
+
+    model = train_logistic_regression(features, target)
+    result = evaluate_model_predictions(model, features, target)
+
+    assert "accuracy" in result
+    assert 0.0 <= result["accuracy"] <= 1.0
+

@@ -2,6 +2,8 @@ import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
 
+from sklearn.metrics import accuracy_score
+
 from quant_ai_research_platform.backtest import compare_strategy_to_buy_and_hold
 
 def create_features(data: pd.DataFrame) -> pd.DataFrame:
@@ -112,3 +114,14 @@ def run_ml_backtest(
         model,
         test_features,
     )
+
+def evaluate_model_predictions(
+    model: LogisticRegression,
+    features: pd.DataFrame,
+    target: pd.Series,
+) -> dict:
+    predictions = model.predict(features)
+
+    return {
+        "accuracy": accuracy_score(target, predictions),
+    }
