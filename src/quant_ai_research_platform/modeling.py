@@ -418,3 +418,65 @@ def create_walk_forward_splits(
 
     return splits
 
+def run_walk_forward_backtest(
+    data: pd.DataFrame,
+    initial_train_size: int,
+    test_size: int,
+    threshold: float = 0.6,
+) -> pd.DataFrame:
+    dataset = create_model_dataset(data)
+
+    splits = create_walk_forward_splits(
+        dataset,
+        initial_train_size=initial_train_size,
+        test_size=test_size,
+    )
+
+    results = []
+
+    for split_number, (train, test) in enumerate(splits, start=1):
+        train_features, train_target = separate_features_target(train)
+        test_features, test_target = separate_features_target(test)
+
+        model = train_logistic_regression(
+            train_features,
+            train_target,
+        )
+
+        signals = generate_threshold_signals(
+            model,
+            test_features,
+            threshold=threshold,
+        )
+
+        test_data = data.loc[test_features.index]
+
+        trading_results = compare_strategy_to_buy_and_hold(
+            test_data,
+            signals,
+        )
+
+        prediction_results = evaluate_model_predictions(
+            model,
+            test_features,
+            test_target,
+        )
+
+        results.append(
+            {
+                "split": split_number,
+                "strategy_return": trading_results["strategy_return"],
+                "buy_and_hold_return": trading_results["buy_and_hold_return"],
+                "excess_return": trading_results["excess_return"],
+                "strategy_max_drawdown": trading_results[
+                    "strategy_max_drawdown"
+                ],
+                "accuracy": prediction_results["accuracy"],
+                "precision": prediction_results["precision"],
+                "recall": prediction_results["recall"],
+                "f1": prediction_results["f1"],
+            }
+        )
+
+    return pd.DataFrame(results)
+

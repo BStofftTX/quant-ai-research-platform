@@ -1031,3 +1031,67 @@ def test_create_walk_forward_splits():
     assert train_3["feature"].tolist() == [0, 1, 2, 3, 4, 5, 6, 7]
     assert test_3["feature"].tolist() == [8, 9]
 
+def test_run_walk_forward_backtest():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import run_walk_forward_backtest
+
+    data = pd.DataFrame(
+        {
+            "Close": [
+                100.0,
+                101.0,
+                102.0,
+                103.0,
+                104.0,
+                105.0,
+                104.0,
+                106.0,
+                107.0,
+                108.0,
+                109.0,
+                110.0,
+                111.0,
+                112.0,
+                113.0,
+                112.0,
+                114.0,
+                115.0,
+                116.0,
+                117.0,
+                118.0,
+                117.0,
+                119.0,
+                120.0,
+                121.0,
+                122.0,
+                121.0,
+                123.0,
+                124.0,
+                125.0,
+                126.0,
+                125.0,
+                127.0,
+                128.0,
+                129.0,
+            ]
+        }
+    )
+
+    result = run_walk_forward_backtest(
+        data,
+        initial_train_size=12,
+        test_size=4,
+        threshold=0.6,
+    )
+
+    assert not result.empty
+    assert "split" in result.columns
+    assert "strategy_return" in result.columns
+    assert "buy_and_hold_return" in result.columns
+    assert "excess_return" in result.columns
+    assert "strategy_max_drawdown" in result.columns
+    assert "accuracy" in result.columns
+    assert "precision" in result.columns
+    assert "recall" in result.columns
+    assert "f1" in result.columns
+
