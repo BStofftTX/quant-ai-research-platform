@@ -2,7 +2,13 @@ import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+)
 
 from quant_ai_research_platform.backtest import compare_strategy_to_buy_and_hold
 
@@ -132,10 +138,12 @@ def evaluate_model_predictions(
     target: pd.Series,
 ) -> dict:
     predictions = model.predict(features)
+    matrix = confusion_matrix(target, predictions, labels=[0, 1])
 
     return {
         "accuracy": accuracy_score(target, predictions),
         "precision": precision_score(target, predictions, zero_division=0),
         "recall": recall_score(target, predictions, zero_division=0),
         "f1": f1_score(target, predictions, zero_division=0),
+        "confusion_matrix": matrix.tolist(),
     }

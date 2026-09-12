@@ -713,3 +713,8 @@ def test_evaluate_model_predictions():
     assert 0.0 <= result["precision"] <= 1.0
     assert 0.0 <= result["recall"] <= 1.0
     assert 0.0 <= result["f1"] <= 1.0
+
+    assert "confusion_matrix" in result
+    assert len(result["confusion_matrix"]) == 2
+    assert len(result["confusion_matrix"][0]) == 2
+    assert len(result["confusion_matrix"][1]) == 2
