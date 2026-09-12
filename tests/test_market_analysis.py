@@ -577,3 +577,27 @@ def test_train_logistic_regression():
     assert len(predictions) == len(target)
     assert set(predictions).issubset({0, 1})
 
+def test_generate_model_signals():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import (
+        generate_model_signals,
+        train_logistic_regression,
+    )
+
+    features = pd.DataFrame(
+        {
+            "return_1d": [0.01, -0.02, 0.03, -0.01, 0.04, -0.03],
+            "return_5d": [0.05, -0.01, 0.06, -0.02, 0.07, -0.04],
+            "volatility_5d": [0.02, 0.03, 0.02, 0.04, 0.01, 0.05],
+        }
+    )
+
+    target = pd.Series([1, 0, 1, 0, 1, 0], name="target")
+
+    model = train_logistic_regression(features, target)
+    signals = generate_model_signals(model, features)
+
+    assert len(signals) == len(features)
+    assert signals.name == "signal"
+    assert set(signals.unique()).issubset({0.0, 1.0})
+

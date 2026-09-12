@@ -58,3 +58,16 @@ def train_logistic_regression(
     model.fit(features, target)
 
     return model
+
+def generate_model_signals(
+    model: LogisticRegression,
+    features: pd.DataFrame,
+) -> pd.Series:
+    predictions = model.predict(features)
+
+    return pd.Series(
+        predictions,
+        index=features.index,
+        name="signal",
+        dtype=float,
+    )
