@@ -256,3 +256,57 @@ def select_best_threshold(
 
     return best_row.to_dict()
 
+def select_threshold_on_validation(
+    data: pd.DataFrame,
+    thresholds: list[float] | None = None,
+    train_fraction: float = 0.6,
+    validation_fraction: float = 0.2,
+) -> dict:
+    if thresholds is None:
+        thresholds = [0.50, 0.55, 0.60, 0.65]
+
+    dataset = create_model_dataset(data)
+
+    train, validation, _ = split_train_validation_test(
+        dataset,
+        train_fraction=train_fraction,
+        validation_fraction=validation_fraction,
+    )
+
+    train_features, train_target = separate_features_target(train)
+    validation_features, _ = separate_features_target(validation)
+
+    model = train_logistic_regression(
+        train_features,
+        train_target,
+    )
+
+    aligned_validation_data = data.loc[validation_features.index]
+
+    results = []
+
+    for threshold in thresholds:
+        signals = generate_threshold_signals(
+            model,
+            validation_features,
+            threshold=threshold,
+        )
+
+        result = compare_strategy_to_buy_and_hold(
+            aligned_validation_data,
+            signals,
+        )
+
+        results.append(
+            {
+                "threshold": threshold,
+                "excess_return": result["excess_return"],
+            }
+        )
+
+    comparison = pd.DataFrame(results)
+    best_row = comparison.loc[comparison["excess_return"].idxmax()]
+
+    return best_row.to_dict()
+
+

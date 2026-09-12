@@ -888,3 +888,50 @@ def test_split_train_validation_test():
     assert validation["feature"].tolist() == [6, 7]
     assert test["feature"].tolist() == [8, 9]
 
+def test_select_threshold_on_validation():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import select_threshold_on_validation
+
+    data = pd.DataFrame(
+        {
+            "Close": [
+                100.0,
+                101.0,
+                102.0,
+                103.0,
+                104.0,
+                105.0,
+                104.0,
+                106.0,
+                107.0,
+                108.0,
+                109.0,
+                110.0,
+                111.0,
+                112.0,
+                113.0,
+                112.0,
+                114.0,
+                115.0,
+                116.0,
+                117.0,
+                118.0,
+                117.0,
+                119.0,
+                120.0,
+                121.0,
+            ]
+        }
+    )
+
+    result = select_threshold_on_validation(
+        data,
+        thresholds=[0.50, 0.60],
+        train_fraction=0.6,
+        validation_fraction=0.2,
+    )
+
+    assert "threshold" in result
+    assert "excess_return" in result
+    assert result["threshold"] in [0.50, 0.60]
+
