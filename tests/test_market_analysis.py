@@ -998,3 +998,36 @@ def test_run_validated_ml_backtest():
     assert "f1" in result
     assert "confusion_matrix" in result
 
+
+def test_create_walk_forward_splits():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import create_walk_forward_splits
+
+    dataset = pd.DataFrame(
+        {
+            "feature": list(range(10)),
+            "target": [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        }
+    )
+
+    splits = create_walk_forward_splits(
+        dataset,
+        initial_train_size=4,
+        test_size=2,
+    )
+
+    assert len(splits) == 3
+
+    train_1, test_1 = splits[0]
+    train_2, test_2 = splits[1]
+    train_3, test_3 = splits[2]
+
+    assert train_1["feature"].tolist() == [0, 1, 2, 3]
+    assert test_1["feature"].tolist() == [4, 5]
+
+    assert train_2["feature"].tolist() == [0, 1, 2, 3, 4, 5]
+    assert test_2["feature"].tolist() == [6, 7]
+
+    assert train_3["feature"].tolist() == [0, 1, 2, 3, 4, 5, 6, 7]
+    assert test_3["feature"].tolist() == [8, 9]
+

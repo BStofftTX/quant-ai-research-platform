@@ -390,3 +390,31 @@ def run_validated_ml_backtest(
         "selected_threshold": best_threshold,
     }
 
+
+def create_walk_forward_splits(
+    dataset: pd.DataFrame,
+    initial_train_size: int,
+    test_size: int,
+) -> list[tuple[pd.DataFrame, pd.DataFrame]]:
+    if initial_train_size <= 0:
+        raise ValueError("initial_train_size must be positive")
+
+    if test_size <= 0:
+        raise ValueError("test_size must be positive")
+
+    if initial_train_size >= len(dataset):
+        raise ValueError("initial_train_size must be smaller than dataset length")
+
+    splits = []
+    train_end = initial_train_size
+
+    while train_end + test_size <= len(dataset):
+        train = dataset.iloc[:train_end].copy()
+        test = dataset.iloc[train_end:train_end + test_size].copy()
+
+        splits.append((train, test))
+
+        train_end += test_size
+
+    return splits
+
