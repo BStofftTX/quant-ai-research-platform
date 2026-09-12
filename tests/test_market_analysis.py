@@ -533,3 +533,26 @@ def test_split_model_dataset():
     assert train["feature"].tolist() == [1, 2, 3]
     assert test["feature"].tolist() == [4, 5]
 
+def test_separate_features_target():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import separate_features_target
+
+    dataset = pd.DataFrame(
+        {
+            "return_1d": [0.01, -0.02, 0.03],
+            "return_5d": [0.05, 0.01, -0.04],
+            "volatility_5d": [0.02, 0.03, 0.04],
+            "target": [1, 0, 1],
+        }
+    )
+
+    features, target = separate_features_target(dataset)
+
+    assert list(features.columns) == [
+        "return_1d",
+        "return_5d",
+        "volatility_5d",
+    ]
+    assert target.tolist() == [1, 0, 1]
+    assert target.name == "target"
+

@@ -37,3 +37,14 @@ def split_model_dataset(
     test = dataset.iloc[split_index:].copy()
 
     return train, test
+
+def separate_features_target(
+    dataset: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.Series]:
+    if "target" not in dataset.columns:
+        raise ValueError("dataset must contain a target column")
+
+    features = dataset.drop(columns=["target"]).copy()
+    target = dataset["target"].copy()
+
+    return features, target
