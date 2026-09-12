@@ -679,6 +679,10 @@ def test_run_ml_backtest():
     assert "excess_return" in result
     assert "strategy_max_drawdown" in result
 
+    assert "accuracy" in result
+    assert "precision" in result
+    assert "recall" in result
+    assert "f1" in result
 
 def test_evaluate_model_predictions():
     import pandas as pd

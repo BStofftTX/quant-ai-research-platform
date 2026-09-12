@@ -102,18 +102,29 @@ def run_ml_backtest(
     )
 
     train_features, train_target = separate_features_target(train)
-    test_features, _ = separate_features_target(test)
+    test_features, test_target = separate_features_target(test)
 
     model = train_logistic_regression(
         train_features,
         train_target,
     )
 
-    return evaluate_model_strategy(
+    trading_results = evaluate_model_strategy(
         data,
         model,
         test_features,
     )
+
+    prediction_results = evaluate_model_predictions(
+        model,
+        test_features,
+        test_target,
+    )
+
+    return {
+        **trading_results,
+        **prediction_results,
+    }
 
 def evaluate_model_predictions(
     model: LogisticRegression,
