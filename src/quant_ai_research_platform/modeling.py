@@ -213,3 +213,18 @@ def compare_thresholds(
 
     return pd.DataFrame(results)
 
+def select_best_threshold(
+    data: pd.DataFrame,
+    thresholds: list[float] | None = None,
+    train_fraction: float = 0.8,
+) -> dict:
+    comparison = compare_thresholds(
+        data,
+        thresholds=thresholds,
+        train_fraction=train_fraction,
+    )
+
+    best_row = comparison.loc[comparison["excess_return"].idxmax()]
+
+    return best_row.to_dict()
+

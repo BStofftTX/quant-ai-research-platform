@@ -822,3 +822,44 @@ def test_compare_thresholds():
     assert "recall" in result.columns
     assert "f1" in result.columns
 
+def test_select_best_threshold():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import select_best_threshold
+
+    data = pd.DataFrame(
+        {
+            "Close": [
+                100.0,
+                101.0,
+                102.0,
+                103.0,
+                104.0,
+                105.0,
+                104.0,
+                106.0,
+                107.0,
+                108.0,
+                109.0,
+                110.0,
+                111.0,
+                112.0,
+                113.0,
+                112.0,
+                114.0,
+                115.0,
+                116.0,
+                117.0,
+            ]
+        }
+    )
+
+    result = select_best_threshold(
+        data,
+        thresholds=[0.50, 0.60],
+        train_fraction=0.7,
+    )
+
+    assert "threshold" in result
+    assert "excess_return" in result
+    assert result["threshold"] in [0.50, 0.60]
+
