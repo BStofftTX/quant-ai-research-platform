@@ -601,3 +601,40 @@ def test_generate_model_signals():
     assert signals.name == "signal"
     assert set(signals.unique()).issubset({0.0, 1.0})
 
+
+def test_evaluate_model_strategy():
+    import pandas as pd
+    from quant_ai_research_platform.modeling import (
+        evaluate_model_strategy,
+        train_logistic_regression,
+    )
+
+    data = pd.DataFrame(
+        {
+            "Close": [100.0, 101.0, 102.0, 101.0, 103.0, 104.0]
+        }
+    )
+
+    features = pd.DataFrame(
+        {
+            "return_1d": [0.01, 0.01, -0.01, 0.02, 0.01],
+            "return_5d": [0.02, 0.03, 0.01, 0.04, 0.05],
+            "volatility_5d": [0.01, 0.01, 0.02, 0.02, 0.01],
+        },
+        index=[1, 2, 3, 4, 5],
+    )
+
+    target = pd.Series(
+        [1, 1, 0, 1, 1],
+        index=features.index,
+        name="target",
+    )
+
+    model = train_logistic_regression(features, target)
+    result = evaluate_model_strategy(data, model, features)
+
+    assert "strategy_return" in result
+    assert "buy_and_hold_return" in result
+    assert "excess_return" in result
+    assert "strategy_max_drawdown" in result
+

@@ -2,6 +2,8 @@ import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
 
+from quant_ai_research_platform.backtest import compare_strategy_to_buy_and_hold
+
 def create_features(data: pd.DataFrame) -> pd.DataFrame:
     features = pd.DataFrame(index=data.index)
 
@@ -70,4 +72,18 @@ def generate_model_signals(
         index=features.index,
         name="signal",
         dtype=float,
+    )
+
+def evaluate_model_strategy(
+    data: pd.DataFrame,
+    model: LogisticRegression,
+    features: pd.DataFrame,
+) -> dict:
+    signals = generate_model_signals(model, features)
+
+    aligned_data = data.loc[features.index]
+
+    return compare_strategy_to_buy_and_hold(
+        aligned_data,
+        signals,
     )
