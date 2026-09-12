@@ -539,3 +539,24 @@ def calculate_walk_forward_stability(
         "best_excess_return": results["excess_return"].max(),
     }
 
+def create_walk_forward_report(
+    research: dict,
+) -> dict:
+    summary = research["summary"]
+    stability = research["stability"]
+
+    return {
+        "splits": summary["splits"],
+        "average_strategy_return": summary["average_strategy_return"],
+        "average_buy_and_hold_return": summary["average_buy_and_hold_return"],
+        "average_excess_return": summary["average_excess_return"],
+        "average_max_drawdown": summary["average_max_drawdown"],
+        "average_accuracy": summary["average_accuracy"],
+        "average_f1": summary["average_f1"],
+        "profitable_split_rate": stability["profitable_split_rate"],
+        "beat_buy_and_hold_rate": stability["beat_buy_and_hold_rate"],
+        "median_excess_return": stability["median_excess_return"],
+        "worst_excess_return": stability["worst_excess_return"],
+        "best_excess_return": stability["best_excess_return"],
+    }
+

@@ -1211,3 +1211,37 @@ def test_calculate_walk_forward_stability():
     assert stability["worst_excess_return"] == pytest.approx(-0.02)
     assert stability["best_excess_return"] == pytest.approx(0.03)
 
+def test_create_walk_forward_report():
+    import pytest
+    from quant_ai_research_platform.modeling import create_walk_forward_report
+
+    research = {
+        "summary": {
+            "splits": 3,
+            "average_strategy_return": 0.04,
+            "average_buy_and_hold_return": 0.03,
+            "average_excess_return": 0.01,
+            "average_max_drawdown": -0.02,
+            "average_accuracy": 0.70,
+            "average_precision": 0.65,
+            "average_recall": 0.60,
+            "average_f1": 0.62,
+        },
+        "stability": {
+            "profitable_split_rate": 0.75,
+            "beat_buy_and_hold_rate": 0.50,
+            "median_excess_return": 0.005,
+            "worst_excess_return": -0.02,
+            "best_excess_return": 0.03,
+        },
+    }
+
+    report = create_walk_forward_report(research)
+
+    assert report["splits"] == 3
+    assert report["average_excess_return"] == pytest.approx(0.01)
+    assert report["average_accuracy"] == pytest.approx(0.70)
+    assert report["average_f1"] == pytest.approx(0.62)
+    assert report["beat_buy_and_hold_rate"] == pytest.approx(0.50)
+    assert report["best_excess_return"] == pytest.approx(0.03)
+
