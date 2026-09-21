@@ -1,12 +1,13 @@
 # Quant-AI Research Platform
 
-A Python-based quantitative research platform for ingesting, storing, analyzing, and comparing financial market data.
+A Python-based quantitative research and machine-learning platform for ingesting, storing, analyzing, modeling, and comparing financial market data.
 
-This project is being developed as a hands-on quantitative engineering and AI research platform, with an emphasis on modular architecture, statistical analysis, risk measurement, reproducibility, and automated testing.
+The project is being developed as a hands-on quantitative engineering and AI research platform with an emphasis on modular architecture, statistical analysis, portfolio analytics, machine learning, reproducibility, backtesting, and automated testing.
 
 ## Current Capabilities
 
 ### Market Data
+
 - Historical market-data ingestion using `yfinance`
 - Multi-security analysis
 - Benchmark-aligned return analysis
@@ -14,6 +15,7 @@ This project is being developed as a hands-on quantitative engineering and AI re
 - CSV export of ranked security comparisons
 
 ### Performance Analytics
+
 - Total return
 - Compound annual growth rate (CAGR)
 - Average daily return
@@ -21,6 +23,7 @@ This project is being developed as a hands-on quantitative engineering and AI re
 - Benchmark-relative performance
 
 ### Risk & Risk-Adjusted Metrics
+
 - Maximum drawdown
 - Sharpe ratio
 - Sortino ratio
@@ -30,6 +33,7 @@ This project is being developed as a hands-on quantitative engineering and AI re
 - Historical Expected Shortfall (ES) at 95% and 99%
 
 ### Statistical & Benchmark Analysis
+
 - Correlation
 - Beta
 - R-squared
@@ -39,8 +43,57 @@ This project is being developed as a hands-on quantitative engineering and AI re
 - Statistical abnormal-return detection
 - Rolling volatility, correlation, and beta
 
+### Portfolio Analytics
+
+- Equal-weight portfolio construction
+- Custom portfolio weights
+- Portfolio return calculation
+- Compounded portfolio total return
+- Annualized portfolio return
+- Annualized portfolio volatility
+- Portfolio Sharpe ratio
+- Portfolio maximum drawdown
+- Integrated portfolio analysis reports
+- Portfolio weight validation
+
+### Machine-Learning Research
+
+The modeling layer provides an end-to-end financial ML research workflow including:
+
+- Financial time-series feature engineering
+- Forward-return target creation
+- Model dataset construction
+- Train/test splitting
+- Train/validation/test separation
+- Feature/target separation
+- Logistic-regression classification
+- Prediction generation
+- Prediction-probability generation
+- Probability-threshold trading signals
+- Classification threshold comparison
+- Validation-based threshold selection
+- Strategy backtesting
+- Model prediction evaluation
+- Validated ML backtesting
+
+### Walk-Forward Research
+
+The platform supports time-aware out-of-sample model evaluation through:
+
+- Walk-forward split generation
+- Walk-forward model backtesting
+- Multi-period research execution
+- Strategy versus buy-and-hold comparison
+- Walk-forward result summaries
+- Profitable-split rate
+- Benchmark-beating rate
+- Median excess return
+- Best and worst excess-return analysis
+- Walk-forward stability reporting
+
 ### Structured Security Profiles
-The platform organizes analytical results into four logical groups:
+
+Analytical results are organized into four logical groups:
 
 - **Performance**
 - **Risk**
@@ -50,113 +103,35 @@ The platform organizes analytical results into four logical groups:
 ## Architecture
 
 ```text
-Market Data
-    |
-    v
-ingest.py
-    |
-    v
-etl.py
-    |
-    +------> PostgreSQL
-    |         database.py
-    |         sql/schema.sql
-    |
-    v
-market_analysis.py
-    |
-    +------> Performance metrics
-    +------> Risk metrics
-    +------> Benchmark analysis
-    +------> Regression analysis
-    +------> Abnormal-return detection
-    +------> Security profiles
-    |
-    v
-Ranked Analysis / CSV Output
-```
-
-The project separates data acquisition, transformation, persistence, and analysis so that individual components can evolve independently.
-
-## Project Structure
-
-```text
-quant-ai-research-platform/
-├── sql/
-│   └── schema.sql
-├── src/
-│   └── quant_ai_research_platform/
-│       ├── __init__.py
-│       ├── database.py
-│       ├── etl.py
-│       ├── ingest.py
-│       └── market_analysis.py
-├── tests/
-│   └── test_market_analysis.py
-├── pyproject.toml
-├── uv.lock
-└── README.md
-```
-
-## Technology Stack
-
-- Python 3.12+
-- NumPy
-- pandas
-- SciPy
-- yfinance
-- PostgreSQL
-- psycopg
-- pytest
-- uv
-
-## Testing
-
-The analytics layer includes automated tests covering core statistical, benchmark, regression, rolling-risk, tail-risk, and structured-profile functionality.
-
-Run the test suite with:
-
-```bash
-uv run pytest -q
-```
-
-## Development Approach
-
-The platform is being developed incrementally with an emphasis on:
-
-- modular separation of concerns
-- test-driven feature development
-- reproducible environments
-- Git-based version control
-- quantitative risk and performance analysis
-- extensibility for future AI/ML research
-
-## Roadmap
-
-Planned areas of exploration include:
-
-- portfolio-level analytics
-- expanded factor modeling
-- additional benchmark and risk models
-- feature engineering for financial time series
-- machine-learning research workflows
-- model evaluation and backtesting
-- visualization and reporting
-- AI-assisted quantitative research
-
-## Status
-
-**Active development — 2026**
-
-The current release represents the quantitative-analysis foundation of a broader research platform.
-
-## Author
-
-**W. Bruce Stofft**
-
-MS Computer Science — Artificial Intelligence  
-MBA — Management
-
-Founder, MacroStofft LLC
-
-Background spanning artificial intelligence, machine learning, systems analysis, technical program leadership, and enterprise technology.
+                    Market Data
+                         |
+                         v
+                     ingest.py
+                         |
+                         v
+                       etl.py
+                         |
+             +-----------+-----------+
+             |                       |
+             v                       v
+        PostgreSQL            market_analysis.py
+        database.py                  |
+        sql/schema.sql               |
+                                     +--> Performance analytics
+                                     +--> Risk analytics
+                                     +--> Benchmark analysis
+                                     +--> Regression analysis
+                                     +--> Portfolio analytics
+                                     |
+                                     v
+                                  modeling.py
+                                     |
+                                     +--> Feature engineering
+                                     +--> Logistic regression
+                                     +--> Prediction probabilities
+                                     +--> Threshold selection
+                                     +--> ML backtesting
+                                     +--> Walk-forward validation
+                                     |
+                                     v
+                          Research Results / Reports
