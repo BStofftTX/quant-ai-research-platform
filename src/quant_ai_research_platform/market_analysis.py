@@ -504,3 +504,26 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+def calculate_portfolio_returns(
+    returns: pd.DataFrame,
+    weights: dict | None = None,
+) -> pd.Series:
+    """Calculate portfolio returns from individual security returns."""
+    if returns.empty:
+        raise ValueError("Returns data cannot be empty")
+
+    if weights is None:
+        weight = 1 / len(returns.columns)
+        return returns.mul(weight).sum(axis=1)
+
+    weight_series = pd.Series(weights, dtype=float)
+
+    if set(weight_series.index) != set(returns.columns):
+        raise ValueError("Weights must match return columns")
+
+    if not math.isclose(weight_series.sum(), 1.0):
+        raise ValueError("Portfolio weights must sum to 1")
+
+    return returns.mul(weight_series, axis=1).sum(axis=1)

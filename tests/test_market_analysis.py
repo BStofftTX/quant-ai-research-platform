@@ -1245,3 +1245,93 @@ def test_create_walk_forward_report():
     assert report["beat_buy_and_hold_rate"] == pytest.approx(0.50)
     assert report["best_excess_return"] == pytest.approx(0.03)
 
+
+
+def test_calculate_portfolio_returns_equal_weight():
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform.market_analysis import (
+        calculate_portfolio_returns,
+    )
+
+    returns = pd.DataFrame(
+        {
+            "AAPL": [0.01, 0.02, -0.01],
+            "MSFT": [0.03, 0.00, 0.01],
+        }
+    )
+
+    result = calculate_portfolio_returns(returns)
+
+    assert result.iloc[0] == pytest.approx(0.02)
+    assert result.iloc[1] == pytest.approx(0.01)
+    assert result.iloc[2] == pytest.approx(0.00)
+
+
+def test_calculate_portfolio_returns_equal_weight():
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform.market_analysis import (
+        calculate_portfolio_returns,
+    )
+
+    returns = pd.DataFrame(
+        {
+            "AAPL": [0.01, 0.02, -0.01],
+            "MSFT": [0.03, 0.00, 0.01],
+        }
+    )
+
+    result = calculate_portfolio_returns(returns)
+
+    assert result.iloc[0] == pytest.approx(0.02)
+    assert result.iloc[1] == pytest.approx(0.01)
+    assert result.iloc[2] == pytest.approx(0.00)
+
+
+def test_calculate_portfolio_returns_custom_weights():
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform.market_analysis import (
+        calculate_portfolio_returns,
+    )
+
+    returns = pd.DataFrame(
+        {
+            "AAPL": [0.10, -0.02],
+            "MSFT": [0.00, 0.04],
+        }
+    )
+
+    result = calculate_portfolio_returns(
+        returns,
+        weights={"AAPL": 0.75, "MSFT": 0.25},
+    )
+
+    assert result.iloc[0] == pytest.approx(0.075)
+    assert result.iloc[1] == pytest.approx(-0.005)
+
+
+def test_calculate_portfolio_returns_rejects_invalid_weights():
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform.market_analysis import (
+        calculate_portfolio_returns,
+    )
+
+    returns = pd.DataFrame(
+        {
+            "AAPL": [0.01, 0.02],
+            "MSFT": [0.02, 0.03],
+        }
+    )
+
+    with pytest.raises(ValueError, match="sum to 1"):
+        calculate_portfolio_returns(
+            returns,
+            weights={"AAPL": 0.80, "MSFT": 0.30},
+        )
