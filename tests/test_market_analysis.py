@@ -1335,3 +1335,56 @@ def test_calculate_portfolio_returns_rejects_invalid_weights():
             returns,
             weights={"AAPL": 0.80, "MSFT": 0.30},
         )
+
+
+def test_calculate_portfolio_statistics():
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform.market_analysis import (
+        calculate_portfolio_statistics,
+    )
+
+    returns = pd.Series([0.01, 0.02, -0.01, 0.03])
+
+    result = calculate_portfolio_statistics(returns)
+
+    assert "total_return" in result
+    assert "annualized_return" in result
+    assert "annualized_volatility" in result
+    assert "sharpe_ratio" in result
+    assert "max_drawdown" in result
+
+    expected_total_return = (1.01 * 1.02 * 0.99 * 1.03) - 1
+
+    assert result["total_return"] == pytest.approx(expected_total_return)
+
+
+def test_analyze_portfolio():
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform.market_analysis import analyze_portfolio
+
+    returns = pd.DataFrame(
+        {
+            "AAPL": [0.01, 0.02, -0.01, 0.03],
+            "MSFT": [0.02, 0.01, 0.00, 0.02],
+        }
+    )
+
+    result = analyze_portfolio(
+        returns,
+        weights={"AAPL": 0.60, "MSFT": 0.40},
+    )
+
+    assert result["weights"]["AAPL"] == pytest.approx(0.60)
+    assert result["weights"]["MSFT"] == pytest.approx(0.40)
+
+    assert "returns" in result
+    assert "statistics" in result
+
+    assert result["returns"].iloc[0] == pytest.approx(0.014)
+    assert "total_return" in result["statistics"]
+    assert "sharpe_ratio" in result["statistics"]
+    assert "max_drawdown" in result["statistics"]

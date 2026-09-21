@@ -527,3 +527,56 @@ def calculate_portfolio_returns(
         raise ValueError("Portfolio weights must sum to 1")
 
     return returns.mul(weight_series, axis=1).sum(axis=1)
+
+
+def calculate_portfolio_statistics(returns: pd.Series) -> dict:
+    """Calculate performance and risk statistics for portfolio returns."""
+    clean = returns.dropna()
+
+    if clean.empty:
+        raise ValueError("Portfolio returns cannot be empty")
+
+    total_return = (1 + clean).prod() - 1
+    annualized_return = clean.mean() * TRADING_DAYS
+    annualized_volatility = clean.std() * math.sqrt(TRADING_DAYS)
+
+    sharpe_ratio = (
+        annualized_return / annualized_volatility
+        if annualized_volatility != 0
+        else float("nan")
+    )
+
+    cumulative_returns = (1 + clean).cumprod()
+    running_max = cumulative_returns.cummax()
+    drawdowns = (cumulative_returns / running_max) - 1
+    max_drawdown = drawdowns.min()
+
+    return {
+        "total_return": total_return,
+        "annualized_return": annualized_return,
+        "annualized_volatility": annualized_volatility,
+        "sharpe_ratio": sharpe_ratio,
+        "max_drawdown": max_drawdown,
+    }
+
+
+def analyze_portfolio(
+    returns: pd.DataFrame,
+    weights: dict | None = None,
+) -> dict:
+    """Create an integrated portfolio analysis."""
+    if returns.empty:
+        raise ValueError("Returns data cannot be empty")
+
+    if weights is None:
+        equal_weight = 1 / len(returns.columns)
+        weights = {column: equal_weight for column in returns.columns}
+
+    portfolio_returns = calculate_portfolio_returns(returns, weights)
+    statistics = calculate_portfolio_statistics(portfolio_returns)
+
+    return {
+        "weights": weights,
+        "returns": portfolio_returns,
+        "statistics": statistics,
+    }
