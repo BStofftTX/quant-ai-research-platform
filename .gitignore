@@ -11,3 +11,4 @@ wheels/
 
 # Generated analysis output
 security_comparison.csv
+.DS_Store
