@@ -2,7 +2,6 @@
 
 from quant_ai_research_platform.etl import get_market_data
 
-
 DEFAULT_SYMBOLS = (
     "AAPL,META,AMZN,GOOG,BABA,MSFT,TSLA,NVDA,INTC,"
     "PWR,TSM,AMD,CRWD,PANW,ADBE,NNE,SPCX,ELVR,SPY"
@@ -18,9 +17,7 @@ def main() -> None:
         raw_symbols = DEFAULT_SYMBOLS
 
     symbols = [
-        symbol.strip().upper()
-        for symbol in raw_symbols.split(",")
-        if symbol.strip()
+        symbol.strip().upper() for symbol in raw_symbols.split(",") if symbol.strip()
     ]
 
     for symbol in symbols:

@@ -1,7 +1,6 @@
 import pandas as pd
 import psycopg
 
-
 DATABASE_NAME = "quant_ai_research"
 
 
@@ -10,10 +9,9 @@ def get_connection():
 
 
 def test_connection():
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT current_database(), current_user;")
-            database_name, current_user = cur.fetchone()
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute("SELECT current_database(), current_user;")
+        database_name, current_user = cur.fetchone()
 
     print(f"Connected to database: {database_name}")
     print(f"Connected as user: {current_user}")
@@ -44,9 +42,7 @@ def save_market_data(symbol, data):
             volume = EXCLUDED.volume;
     """
 
-    clean_data = data.dropna(
-        subset=["Open", "High", "Low", "Close", "Volume"]
-    )
+    clean_data = data.dropna(subset=["Open", "High", "Low", "Close", "Volume"])
 
     rows = []
 
@@ -63,9 +59,8 @@ def save_market_data(symbol, data):
             )
         )
 
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.executemany(insert_sql, rows)
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.executemany(insert_sql, rows)
 
     print(f"Saved {len(rows)} rows for {symbol} to PostgreSQL.")
 
@@ -84,11 +79,10 @@ def load_market_data(symbol):
         ORDER BY trading_date;
     """
 
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (symbol,))
-            rows = cur.fetchall()
-            columns = [desc.name for desc in cur.description]
+    with get_connection() as conn, conn.cursor() as cur:
+        cur.execute(query, (symbol,))
+        rows = cur.fetchall()
+        columns = [desc.name for desc in cur.description]
 
     data = pd.DataFrame(rows, columns=columns)
 

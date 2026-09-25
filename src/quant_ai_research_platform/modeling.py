@@ -1,16 +1,15 @@
 import pandas as pd
-
 from sklearn.linear_model import LogisticRegression
-
 from sklearn.metrics import (
     accuracy_score,
+    confusion_matrix,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
-    confusion_matrix,
 )
 
 from quant_ai_research_platform.backtest import compare_strategy_to_buy_and_hold
+
 
 def create_features(data: pd.DataFrame) -> pd.DataFrame:
     features = pd.DataFrame(index=data.index)
@@ -21,11 +20,13 @@ def create_features(data: pd.DataFrame) -> pd.DataFrame:
 
     return features.dropna()
 
+
 def create_target(data: pd.DataFrame) -> pd.Series:
     future_return = data["Close"].shift(-1) / data["Close"] - 1
     target = (future_return > 0).astype(int)
 
     return target.iloc[:-1].rename("target")
+
 
 def create_model_dataset(data: pd.DataFrame) -> pd.DataFrame:
     features = create_features(data)
@@ -34,6 +35,7 @@ def create_model_dataset(data: pd.DataFrame) -> pd.DataFrame:
     dataset = features.join(target, how="inner")
 
     return dataset.dropna()
+
 
 def split_model_dataset(
     dataset: pd.DataFrame,
@@ -49,6 +51,7 @@ def split_model_dataset(
 
     return train, test
 
+
 def split_train_validation_test(
     dataset: pd.DataFrame,
     train_fraction: float = 0.6,
@@ -61,14 +64,10 @@ def split_train_validation_test(
         raise ValueError("validation_fraction must be positive")
 
     if train_fraction + validation_fraction >= 1.0:
-        raise ValueError(
-            "train_fraction + validation_fraction must be less than 1"
-        )
+        raise ValueError("train_fraction + validation_fraction must be less than 1")
 
     train_end = int(len(dataset) * train_fraction)
-    validation_end = int(
-        len(dataset) * (train_fraction + validation_fraction)
-    )
+    validation_end = int(len(dataset) * (train_fraction + validation_fraction))
 
     train = dataset.iloc[:train_end].copy()
     validation = dataset.iloc[train_end:validation_end].copy()
@@ -88,6 +87,7 @@ def separate_features_target(
 
     return features, target
 
+
 def train_logistic_regression(
     features: pd.DataFrame,
     target: pd.Series,
@@ -96,6 +96,7 @@ def train_logistic_regression(
     model.fit(features, target)
 
     return model
+
 
 def generate_model_signals(
     model: LogisticRegression,
@@ -110,6 +111,7 @@ def generate_model_signals(
         dtype=float,
     )
 
+
 def evaluate_model_strategy(
     data: pd.DataFrame,
     model: LogisticRegression,
@@ -123,6 +125,7 @@ def evaluate_model_strategy(
         aligned_data,
         signals,
     )
+
 
 def run_ml_backtest(
     data: pd.DataFrame,
@@ -169,6 +172,7 @@ def run_ml_backtest(
         "threshold": threshold,
     }
 
+
 def evaluate_model_predictions(
     model: LogisticRegression,
     features: pd.DataFrame,
@@ -184,6 +188,8 @@ def evaluate_model_predictions(
         "f1": f1_score(target, predictions, zero_division=0),
         "confusion_matrix": matrix.tolist(),
     }
+
+
 def generate_prediction_probabilities(
     model: LogisticRegression,
     features: pd.DataFrame,
@@ -196,6 +202,7 @@ def generate_prediction_probabilities(
         name="probability_up",
     )
 
+
 def generate_threshold_signals(
     model: LogisticRegression,
     features: pd.DataFrame,
@@ -207,6 +214,7 @@ def generate_threshold_signals(
     probabilities = generate_prediction_probabilities(model, features)
 
     return (probabilities >= threshold).astype(float).rename("signal")
+
 
 def compare_thresholds(
     data: pd.DataFrame,
@@ -241,6 +249,7 @@ def compare_thresholds(
 
     return pd.DataFrame(results)
 
+
 def select_best_threshold(
     data: pd.DataFrame,
     thresholds: list[float] | None = None,
@@ -255,6 +264,7 @@ def select_best_threshold(
     best_row = comparison.loc[comparison["excess_return"].idxmax()]
 
     return best_row.to_dict()
+
 
 def select_threshold_on_validation(
     data: pd.DataFrame,
@@ -410,13 +420,14 @@ def create_walk_forward_splits(
 
     while train_end + test_size <= len(dataset):
         train = dataset.iloc[:train_end].copy()
-        test = dataset.iloc[train_end:train_end + test_size].copy()
+        test = dataset.iloc[train_end : train_end + test_size].copy()
 
         splits.append((train, test))
 
         train_end += test_size
 
     return splits
+
 
 def run_walk_forward_backtest(
     data: pd.DataFrame,
@@ -468,9 +479,7 @@ def run_walk_forward_backtest(
                 "strategy_return": trading_results["strategy_return"],
                 "buy_and_hold_return": trading_results["buy_and_hold_return"],
                 "excess_return": trading_results["excess_return"],
-                "strategy_max_drawdown": trading_results[
-                    "strategy_max_drawdown"
-                ],
+                "strategy_max_drawdown": trading_results["strategy_max_drawdown"],
                 "accuracy": prediction_results["accuracy"],
                 "precision": prediction_results["precision"],
                 "recall": prediction_results["recall"],
@@ -479,6 +488,7 @@ def run_walk_forward_backtest(
         )
 
     return pd.DataFrame(results)
+
 
 def summarize_walk_forward_results(
     results: pd.DataFrame,
@@ -521,6 +531,7 @@ def run_walk_forward_research(
         "stability": stability,
     }
 
+
 def calculate_walk_forward_stability(
     results: pd.DataFrame,
 ) -> dict:
@@ -528,16 +539,13 @@ def calculate_walk_forward_stability(
         raise ValueError("results must not be empty")
 
     return {
-        "profitable_split_rate": (
-            results["strategy_return"] > 0
-        ).mean(),
-        "beat_buy_and_hold_rate": (
-            results["excess_return"] > 0
-        ).mean(),
+        "profitable_split_rate": (results["strategy_return"] > 0).mean(),
+        "beat_buy_and_hold_rate": (results["excess_return"] > 0).mean(),
         "median_excess_return": results["excess_return"].median(),
         "worst_excess_return": results["excess_return"].min(),
         "best_excess_return": results["excess_return"].max(),
     }
+
 
 def create_walk_forward_report(
     research: dict,
@@ -559,4 +567,3 @@ def create_walk_forward_report(
         "worst_excess_return": stability["worst_excess_return"],
         "best_excess_return": stability["best_excess_return"],
     }
-
