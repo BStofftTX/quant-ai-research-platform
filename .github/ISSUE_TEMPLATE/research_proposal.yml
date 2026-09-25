@@ -1,0 +1,33 @@
+name: Research proposal
+description: Propose a focused quantitative or ML research improvement
+title: "[Research]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Research question
+      description: State the falsifiable question or engineering objective.
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Proposed method
+      description: Describe data, features, baselines, splits, metrics, and controls.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+      description: Explain how leakage, overfitting, costs, and out-of-sample evaluation will be addressed.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Data and licensing
+      description: Identify sources, rights, limitations, and any redistribution restrictions.
+    validations:
+      required: true
