@@ -5,7 +5,6 @@ from scipy import stats
 
 from quant_ai_research_platform.etl import get_stored_market_data
 
-
 TRADING_DAYS = 252
 BENCHMARK = "SPY"
 DEFAULT_SYMBOLS = (
@@ -41,9 +40,9 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
     )
 
     downside_returns = daily_returns.clip(upper=0)
-    downside_deviation = math.sqrt(
-        (downside_returns ** 2).mean()
-    ) * math.sqrt(TRADING_DAYS)
+    downside_deviation = math.sqrt((downside_returns**2).mean()) * math.sqrt(
+        TRADING_DAYS
+    )
 
     sortino_ratio = (
         annualized_return / downside_deviation
@@ -56,22 +55,14 @@ def calculate_statistics(data: pd.DataFrame) -> dict:
     drawdowns = (cumulative_returns / running_max) - 1
     max_drawdown = drawdowns.min()
 
-    calmar_ratio = (
-        cagr / abs(max_drawdown)
-        if max_drawdown != 0
-        else float("nan")
-    )
+    calmar_ratio = cagr / abs(max_drawdown) if max_drawdown != 0 else float("nan")
 
     historical_var_95 = daily_returns.quantile(0.05)
     historical_var_99 = daily_returns.quantile(0.01)
 
-    historical_es_95 = daily_returns[
-        daily_returns <= historical_var_95
-    ].mean()
+    historical_es_95 = daily_returns[daily_returns <= historical_var_95].mean()
 
-    historical_es_99 = daily_returns[
-        daily_returns <= historical_var_99
-    ].mean()
+    historical_es_99 = daily_returns[daily_returns <= historical_var_99].mean()
 
     return {
         "starting_price": starting_price,
@@ -113,27 +104,13 @@ def calculate_rolling_metrics(
     if len(returns) < window:
         raise ValueError("Not enough overlapping returns for rolling window")
 
-    stock_volatility = (
-        returns["stock"].rolling(window).std() * math.sqrt(TRADING_DAYS)
-    )
+    stock_volatility = returns["stock"].rolling(window).std() * math.sqrt(TRADING_DAYS)
 
-    correlation = (
-        returns["stock"]
-        .rolling(window)
-        .corr(returns["benchmark"])
-    )
+    correlation = returns["stock"].rolling(window).corr(returns["benchmark"])
 
-    covariance = (
-        returns["stock"]
-        .rolling(window)
-        .cov(returns["benchmark"])
-    )
+    covariance = returns["stock"].rolling(window).cov(returns["benchmark"])
 
-    benchmark_variance = (
-        returns["benchmark"]
-        .rolling(window)
-        .var()
-    )
+    benchmark_variance = returns["benchmark"].rolling(window).var()
 
     beta = covariance / benchmark_variance
 
@@ -144,7 +121,6 @@ def calculate_rolling_metrics(
             "beta": beta,
         }
     ).dropna()
-
 
 
 def create_risk_report(data: pd.DataFrame) -> dict:
@@ -160,7 +136,6 @@ def create_risk_report(data: pd.DataFrame) -> dict:
         "historical_var_99": stats["historical_var_99"],
         "historical_es_99": stats["historical_es_99"],
     }
-
 
 
 def calculate_benchmark_metrics(
@@ -180,9 +155,7 @@ def calculate_benchmark_metrics(
     if len(aligned) < 2:
         raise ValueError("Not enough overlapping market data")
 
-    stock_total_return = (
-        aligned["stock"].iloc[-1] / aligned["stock"].iloc[0]
-    ) - 1
+    stock_total_return = (aligned["stock"].iloc[-1] / aligned["stock"].iloc[0]) - 1
 
     benchmark_total_return = (
         aligned["benchmark"].iloc[-1] / aligned["benchmark"].iloc[0]
@@ -191,16 +164,12 @@ def calculate_benchmark_metrics(
     returns = aligned.pct_change().dropna()
 
     correlation = returns["stock"].corr(returns["benchmark"])
-    r_squared = correlation ** 2
+    r_squared = correlation**2
 
     benchmark_variance = returns["benchmark"].var()
     covariance = returns["stock"].cov(returns["benchmark"])
 
-    beta = (
-        covariance / benchmark_variance
-        if benchmark_variance != 0
-        else float("nan")
-    )
+    beta = covariance / benchmark_variance if benchmark_variance != 0 else float("nan")
 
     annualized_stock_return = returns["stock"].mean() * TRADING_DAYS
     annualized_benchmark_return = returns["benchmark"].mean() * TRADING_DAYS
@@ -276,14 +245,12 @@ def calculate_factor_regression(
     correlation = returns["stock"].corr(returns["factor"])
 
     degrees_freedom = len(returns) - 2
-    residual_variance = (residuals ** 2).sum() / degrees_freedom
+    residual_variance = (residuals**2).sum() / degrees_freedom
     factor_squared_deviation = (
         (returns["factor"] - returns["factor"].mean()) ** 2
     ).sum()
 
-    beta_standard_error = math.sqrt(
-        residual_variance / factor_squared_deviation
-    )
+    beta_standard_error = math.sqrt(residual_variance / factor_squared_deviation)
     beta_t_statistic = beta / beta_standard_error
     beta_p_value = 2 * stats.t.sf(
         abs(beta_t_statistic),
@@ -303,7 +270,7 @@ def calculate_factor_regression(
         "beta_p_value": beta_p_value,
         "beta_ci_lower": beta_ci_lower,
         "beta_ci_upper": beta_ci_upper,
-        "r_squared": correlation ** 2,
+        "r_squared": correlation**2,
         "residuals": residuals,
     }
 
@@ -351,8 +318,7 @@ def analyze_symbol(
     comparison = calculate_benchmark_metrics(stock_data, aligned_benchmark)
 
     excess_return = (
-        comparison["stock_total_return"]
-        - comparison["benchmark_total_return"]
+        comparison["stock_total_return"] - comparison["benchmark_total_return"]
     )
 
     print(f"\n{symbol} vs {BENCHMARK}")
@@ -363,7 +329,9 @@ def analyze_symbol(
     )
     print(f"Aligned observations:    {comparison['observations']}")
     print(f"{symbol} total return:       {comparison['stock_total_return']:.2%}")
-    print(f"{BENCHMARK} total return:        {comparison['benchmark_total_return']:.2%}")
+    print(
+        f"{BENCHMARK} total return:        {comparison['benchmark_total_return']:.2%}"
+    )
     print(f"Excess return:           {excess_return:.2%}")
     print(f"CAGR:                    {stock_stats['cagr']:.2%}")
     print(f"Annualized volatility:   {stock_stats['annualized_volatility']:.2%}")
@@ -397,6 +365,7 @@ def analyze_symbol(
         "alpha": comparison["alpha"],
     }
 
+
 def main() -> None:
     raw_symbols = input(
         f"Enter ticker symbols separated by commas [{DEFAULT_SYMBOLS}]: "
@@ -406,9 +375,7 @@ def main() -> None:
         raw_symbols = DEFAULT_SYMBOLS
 
     symbols = [
-        symbol.strip().upper()
-        for symbol in raw_symbols.split(",")
-        if symbol.strip()
+        symbol.strip().upper() for symbol in raw_symbols.split(",") if symbol.strip()
     ]
 
     symbols = [symbol for symbol in symbols if symbol != BENCHMARK]

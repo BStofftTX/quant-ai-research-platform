@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible analytical or software problem
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Use synthetic or legally redistributable data. Never post credentials or personal financial information.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide the smallest reproducible example, including assumptions and synthetic inputs.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Python version, operating system, and repository commit.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Research or security impact
+      description: Describe possible calculation, leakage, reproducibility, data, or security implications.

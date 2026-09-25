@@ -1,9 +1,14 @@
 import pandas as pd
-def annualized_return(total_return: float, periods: int, periods_per_year: int = 252) -> float:
+
+
+def annualized_return(
+    total_return: float, periods: int, periods_per_year: int = 252
+) -> float:
     if periods <= 0:
         raise ValueError("periods must be positive")
 
     return (1 + total_return) ** (periods_per_year / periods) - 1
+
 
 def buy_and_hold_return(data: pd.DataFrame) -> float:
     if data.empty:
@@ -14,8 +19,10 @@ def buy_and_hold_return(data: pd.DataFrame) -> float:
 
     return (end_price / start_price) - 1
 
+
 def excess_return(strategy_return: float, benchmark_return: float) -> float:
     return strategy_return - benchmark_return
+
 
 def max_drawdown(equity_curve: pd.Series) -> float:
     if equity_curve.empty:
@@ -25,6 +32,7 @@ def max_drawdown(equity_curve: pd.Series) -> float:
     drawdown = (equity_curve / running_max) - 1
 
     return drawdown.min()
+
 
 def summarize_backtest(
     data: pd.DataFrame,
@@ -50,6 +58,7 @@ def summarize_backtest(
         "excess_return": excess_return(total_return, benchmark_return),
         "max_drawdown": max_drawdown(equity_curve),
     }
+
 
 def calculate_strategy_returns(
     data: pd.DataFrame,
@@ -111,6 +120,7 @@ def moving_average_signals(
 
     return (short_ma > long_ma).astype(float).rename("signal")
 
+
 def compare_strategy_to_buy_and_hold(
     data: pd.DataFrame,
     signals: pd.Series,
@@ -134,6 +144,7 @@ def compare_strategy_to_buy_and_hold(
         ),
         "strategy_max_drawdown": strategy["max_drawdown"],
     }
+
 
 def create_strategy_evaluation(
     data: pd.DataFrame,
@@ -160,4 +171,3 @@ def create_strategy_evaluation(
         "final_equity": strategy["equity_curve"].iloc[-1],
         "periods": len(data) - 1,
     }
-

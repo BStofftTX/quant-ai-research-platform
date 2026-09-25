@@ -1,7 +1,9 @@
 import pytest
 
+
 def test_buy_and_hold_return():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import buy_and_hold_return
 
     data = pd.DataFrame({"Close": [100.0, 110.0]})
@@ -9,6 +11,7 @@ def test_buy_and_hold_return():
     result = buy_and_hold_return(data)
 
     assert result == pytest.approx(0.10)
+
 
 from datetime import date
 
@@ -18,17 +21,14 @@ from quant_ai_research_platform.market_analysis import (
     calculate_benchmark_metrics,
     calculate_factor_regression,
     calculate_rolling_metrics,
-    find_abnormal_returns,
     calculate_statistics,
     create_risk_report,
-    create_security_profile,
+    find_abnormal_returns,
 )
 
 
 def test_calculate_statistics():
-    data = pd.DataFrame(
-        {"Close": [100.0, 110.0, 121.0]}
-    )
+    data = pd.DataFrame({"Close": [100.0, 110.0, 121.0]})
 
     stats = calculate_statistics(data)
 
@@ -40,16 +40,12 @@ def test_calculate_statistics():
 def test_benchmark_metrics_align_dates():
     stock = pd.DataFrame(
         {"Close": [100.0, 108.0, 121.0, 127.0]},
-        index=pd.to_datetime(
-            ["2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07"]
-        ),
+        index=pd.to_datetime(["2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07"]),
     )
 
     benchmark = pd.DataFrame(
         {"Close": [200.0, 210.0, 218.0]},
-        index=pd.to_datetime(
-            ["2026-01-02", "2026-01-05", "2026-01-06"]
-        ),
+        index=pd.to_datetime(["2026-01-02", "2026-01-05", "2026-01-06"]),
     )
 
     result = calculate_benchmark_metrics(stock, benchmark)
@@ -82,19 +78,16 @@ def test_calculate_factor_regression():
 def test_find_abnormal_returns():
     residuals = pd.Series(
         [0.01, -0.03, 0.02, -0.005],
-        index=pd.to_datetime(
-            ["2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07"]
-        ),
+        index=pd.to_datetime(["2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07"]),
     )
 
     result = find_abnormal_returns(residuals, top_n=2)
 
-    assert list(result.index) == list(
-        pd.to_datetime(["2026-01-05", "2026-01-06"])
-    )
+    assert list(result.index) == list(pd.to_datetime(["2026-01-05", "2026-01-06"]))
     assert result.iloc[0]["residual"] == -0.03
     assert result.iloc[1]["residual"] == 0.02
     assert result.iloc[0]["absolute_residual"] == 0.03
+
 
 def test_find_abnormal_returns_flags_large_z_scores():
     residuals = pd.Series(
@@ -119,6 +112,7 @@ def test_find_abnormal_returns_flags_large_z_scores():
     assert "z_score" in result.columns
     assert "is_abnormal" in result.columns
     assert result.loc[pd.Timestamp("2026-01-08"), "is_abnormal"]
+
 
 def test_calculate_rolling_metrics():
     dates = pd.to_datetime(
@@ -156,6 +150,7 @@ def test_calculate_rolling_metrics():
     assert len(result) == 3
     assert result.notna().all().all()
 
+
 def test_factor_regression_inference_fields():
     factor = pd.DataFrame(
         {"Close": [100.0, 101.0, 103.0, 102.0, 105.0, 107.0]},
@@ -182,10 +177,9 @@ def test_factor_regression_inference_fields():
     assert result["beta_ci_lower"] < result["beta"] < result["beta_ci_upper"]
     assert 0 <= result["beta_p_value"] <= 1
 
+
 def test_calculate_statistics_includes_tail_risk():
-    data = pd.DataFrame(
-        {"Close": [100.0, 102.0, 101.0, 99.0, 95.0, 97.0, 94.0]}
-    )
+    data = pd.DataFrame({"Close": [100.0, 102.0, 101.0, 99.0, 95.0, 97.0, 94.0]})
 
     stats = calculate_statistics(data)
 
@@ -196,9 +190,7 @@ def test_calculate_statistics_includes_tail_risk():
 
 
 def test_create_risk_report():
-    data = pd.DataFrame(
-        {"Close": [100.0, 102.0, 101.0, 99.0, 95.0, 97.0, 94.0]}
-    )
+    data = pd.DataFrame({"Close": [100.0, 102.0, 101.0, 99.0, 95.0, 97.0, 94.0]})
 
     report = create_risk_report(data)
 
@@ -212,21 +204,22 @@ def test_create_risk_report():
         "historical_es_99",
     }
 
+
 def test_calculate_statistics_includes_sortino():
-    data = pd.DataFrame(
-        {"Close": [100.0, 102.0, 101.0, 99.0, 103.0, 98.0, 104.0]}
-    )
+    data = pd.DataFrame({"Close": [100.0, 102.0, 101.0, 99.0, 103.0, 98.0, 104.0]})
 
     stats = calculate_statistics(data)
 
     assert stats["downside_deviation"] > 0
     assert "sortino_ratio" in stats
-    assert stats["sortino_ratio"] == stats["average_daily_return"] * 252 / stats["downside_deviation"]
+    assert (
+        stats["sortino_ratio"]
+        == stats["average_daily_return"] * 252 / stats["downside_deviation"]
+    )
+
 
 def test_calculate_statistics_includes_calmar():
-    data = pd.DataFrame(
-        {"Close": [100.0, 105.0, 103.0, 108.0, 104.0, 110.0]}
-    )
+    data = pd.DataFrame({"Close": [100.0, 105.0, 103.0, 108.0, 104.0, 110.0]})
 
     stats = calculate_statistics(data)
 
@@ -249,12 +242,15 @@ def test_create_security_profile():
         "risk_adjusted",
         "market_behavior",
     }
+
+
 def test_annualized_return():
     from quant_ai_research_platform.backtest import annualized_return
 
     result = annualized_return(0.10, periods=252)
 
     assert result == pytest.approx(0.10)
+
 
 def test_excess_return():
     from quant_ai_research_platform.backtest import excess_return
@@ -263,8 +259,10 @@ def test_excess_return():
 
     assert result == pytest.approx(0.05)
 
+
 def test_max_drawdown():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import max_drawdown
 
     equity_curve = pd.Series([100.0, 120.0, 90.0, 110.0])
@@ -273,8 +271,10 @@ def test_max_drawdown():
 
     assert result == pytest.approx(-0.25)
 
+
 def test_summarize_backtest():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import summarize_backtest
 
     data = pd.DataFrame({"Close": [100.0, 110.0, 105.0, 120.0]})
@@ -294,6 +294,7 @@ def test_summarize_backtest():
 
 def test_calculate_strategy_returns_uses_prior_signal():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import calculate_strategy_returns
 
     data = pd.DataFrame({"Close": [100.0, 110.0, 121.0]})
@@ -305,8 +306,10 @@ def test_calculate_strategy_returns_uses_prior_signal():
     assert result.iloc[1] == pytest.approx(0.0)
     assert result.iloc[2] == pytest.approx(0.10)
 
+
 def test_build_equity_curve():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import build_equity_curve
 
     strategy_returns = pd.Series([0.0, 0.10, -0.05])
@@ -320,6 +323,7 @@ def test_build_equity_curve():
 
 def test_run_strategy_backtest():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import run_strategy_backtest
 
     data = pd.DataFrame({"Close": [100.0, 110.0, 121.0]})
@@ -335,8 +339,10 @@ def test_run_strategy_backtest():
     assert result["total_return"] == pytest.approx(0.10)
     assert result["max_drawdown"] == pytest.approx(0.0)
 
+
 def test_moving_average_signals():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import moving_average_signals
 
     data = pd.DataFrame({"Close": [1.0, 2.0, 3.0, 4.0, 5.0]})
@@ -351,16 +357,16 @@ def test_moving_average_signals():
 
     pd.testing.assert_series_equal(result, expected)
 
+
 def test_moving_average_strategy_backtest():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import (
         moving_average_signals,
         run_strategy_backtest,
     )
 
-    data = pd.DataFrame(
-        {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]}
-    )
+    data = pd.DataFrame({"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]})
 
     signals = moving_average_signals(
         data,
@@ -378,16 +384,16 @@ def test_moving_average_strategy_backtest():
     assert result["total_return"] > 0.0
     assert result["max_drawdown"] <= 0.0
 
+
 def test_compare_strategy_to_buy_and_hold():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import (
         compare_strategy_to_buy_and_hold,
         moving_average_signals,
     )
 
-    data = pd.DataFrame(
-        {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]}
-    )
+    data = pd.DataFrame({"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]})
 
     signals = moving_average_signals(
         data,
@@ -408,16 +414,16 @@ def test_compare_strategy_to_buy_and_hold():
     )
     assert result["strategy_max_drawdown"] <= 0.0
 
+
 def test_create_strategy_evaluation():
     import pandas as pd
+
     from quant_ai_research_platform.backtest import (
         create_strategy_evaluation,
         moving_average_signals,
     )
 
-    data = pd.DataFrame(
-        {"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]}
-    )
+    data = pd.DataFrame({"Close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]})
 
     signals = moving_average_signals(
         data,
@@ -437,8 +443,10 @@ def test_create_strategy_evaluation():
     assert result["periods"] == 5
     assert result["strategy_max_drawdown"] <= 0.0
 
+
 def test_create_features():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import create_features
 
     data = pd.DataFrame(
@@ -468,13 +476,13 @@ def test_create_features():
     assert not result.empty
     assert not result.isna().any().any()
 
+
 def test_create_target():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import create_target
 
-    data = pd.DataFrame(
-        {"Close": [100.0, 110.0, 105.0, 120.0]}
-    )
+    data = pd.DataFrame({"Close": [100.0, 110.0, 105.0, 120.0]})
 
     result = create_target(data)
 
@@ -485,8 +493,10 @@ def test_create_target():
 
     pd.testing.assert_series_equal(result, expected)
 
+
 def test_create_model_dataset():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import create_model_dataset
 
     data = pd.DataFrame(
@@ -517,8 +527,10 @@ def test_create_model_dataset():
     assert not result.empty
     assert not result.isna().any().any()
 
+
 def test_split_model_dataset():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import split_model_dataset
 
     dataset = pd.DataFrame(
@@ -535,8 +547,10 @@ def test_split_model_dataset():
     assert train["feature"].tolist() == [1, 2, 3]
     assert test["feature"].tolist() == [4, 5]
 
+
 def test_separate_features_target():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import separate_features_target
 
     dataset = pd.DataFrame(
@@ -558,8 +572,10 @@ def test_separate_features_target():
     assert target.tolist() == [1, 0, 1]
     assert target.name == "target"
 
+
 def test_train_logistic_regression():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import train_logistic_regression
 
     features = pd.DataFrame(
@@ -579,8 +595,10 @@ def test_train_logistic_regression():
     assert len(predictions) == len(target)
     assert set(predictions).issubset({0, 1})
 
+
 def test_generate_model_signals():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import (
         generate_model_signals,
         train_logistic_regression,
@@ -606,16 +624,13 @@ def test_generate_model_signals():
 
 def test_evaluate_model_strategy():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import (
         evaluate_model_strategy,
         train_logistic_regression,
     )
 
-    data = pd.DataFrame(
-        {
-            "Close": [100.0, 101.0, 102.0, 101.0, 103.0, 104.0]
-        }
-    )
+    data = pd.DataFrame({"Close": [100.0, 101.0, 102.0, 101.0, 103.0, 104.0]})
 
     features = pd.DataFrame(
         {
@@ -643,6 +658,7 @@ def test_evaluate_model_strategy():
 
 def test_run_ml_backtest():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import run_ml_backtest
 
     data = pd.DataFrame(
@@ -687,8 +703,10 @@ def test_run_ml_backtest():
     assert "threshold" in result
     assert result["threshold"] == 0.6
 
+
 def test_evaluate_model_predictions():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import (
         evaluate_model_predictions,
         train_logistic_regression,
@@ -721,8 +739,11 @@ def test_evaluate_model_predictions():
     assert len(result["confusion_matrix"]) == 2
     assert len(result["confusion_matrix"][0]) == 2
     assert len(result["confusion_matrix"][1]) == 2
+
+
 def test_generate_prediction_probabilities():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import (
         generate_prediction_probabilities,
         train_logistic_regression,
@@ -745,8 +766,10 @@ def test_generate_prediction_probabilities():
     assert probabilities.name == "probability_up"
     assert probabilities.between(0.0, 1.0).all()
 
+
 def test_generate_threshold_signals():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import (
         generate_threshold_signals,
         train_logistic_regression,
@@ -773,8 +796,10 @@ def test_generate_threshold_signals():
     assert signals.name == "signal"
     assert set(signals.unique()).issubset({0.0, 1.0})
 
+
 def test_compare_thresholds():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import compare_thresholds
 
     data = pd.DataFrame(
@@ -822,8 +847,10 @@ def test_compare_thresholds():
     assert "recall" in result.columns
     assert "f1" in result.columns
 
+
 def test_select_best_threshold():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import select_best_threshold
 
     data = pd.DataFrame(
@@ -863,8 +890,10 @@ def test_select_best_threshold():
     assert "excess_return" in result
     assert result["threshold"] in [0.50, 0.60]
 
+
 def test_split_train_validation_test():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import split_train_validation_test
 
     dataset = pd.DataFrame(
@@ -888,8 +917,10 @@ def test_split_train_validation_test():
     assert validation["feature"].tolist() == [6, 7]
     assert test["feature"].tolist() == [8, 9]
 
+
 def test_select_threshold_on_validation():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import select_threshold_on_validation
 
     data = pd.DataFrame(
@@ -938,6 +969,7 @@ def test_select_threshold_on_validation():
 
 def test_run_validated_ml_backtest():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import run_validated_ml_backtest
 
     data = pd.DataFrame(
@@ -1001,6 +1033,7 @@ def test_run_validated_ml_backtest():
 
 def test_create_walk_forward_splits():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import create_walk_forward_splits
 
     dataset = pd.DataFrame(
@@ -1031,8 +1064,10 @@ def test_create_walk_forward_splits():
     assert train_3["feature"].tolist() == [0, 1, 2, 3, 4, 5, 6, 7]
     assert test_3["feature"].tolist() == [8, 9]
 
+
 def test_run_walk_forward_backtest():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import run_walk_forward_backtest
 
     data = pd.DataFrame(
@@ -1095,8 +1130,10 @@ def test_run_walk_forward_backtest():
     assert "recall" in result.columns
     assert "f1" in result.columns
 
+
 def test_summarize_walk_forward_results():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import summarize_walk_forward_results
 
     results = pd.DataFrame(
@@ -1120,11 +1157,13 @@ def test_summarize_walk_forward_results():
     assert summary["average_excess_return"] == 0.01
 
     import pytest
+
     assert summary["average_accuracy"] == pytest.approx(0.70)
 
 
 def test_run_walk_forward_research():
     import pandas as pd
+
     from quant_ai_research_platform.modeling import run_walk_forward_research
 
     data = pd.DataFrame(
@@ -1181,7 +1220,6 @@ def test_run_walk_forward_research():
     assert not result["results"].empty
     assert result["summary"]["splits"] == len(result["results"])
 
-
     assert "stability" in result
     assert "profitable_split_rate" in result["stability"]
     assert "beat_buy_and_hold_rate" in result["stability"]
@@ -1189,9 +1227,11 @@ def test_run_walk_forward_research():
     assert "worst_excess_return" in result["stability"]
     assert "best_excess_return" in result["stability"]
 
+
 def test_calculate_walk_forward_stability():
     import pandas as pd
     import pytest
+
     from quant_ai_research_platform.modeling import (
         calculate_walk_forward_stability,
     )
@@ -1211,8 +1251,10 @@ def test_calculate_walk_forward_stability():
     assert stability["worst_excess_return"] == pytest.approx(-0.02)
     assert stability["best_excess_return"] == pytest.approx(0.03)
 
+
 def test_create_walk_forward_report():
     import pytest
+
     from quant_ai_research_platform.modeling import create_walk_forward_report
 
     research = {
@@ -1244,29 +1286,6 @@ def test_create_walk_forward_report():
     assert report["average_f1"] == pytest.approx(0.62)
     assert report["beat_buy_and_hold_rate"] == pytest.approx(0.50)
     assert report["best_excess_return"] == pytest.approx(0.03)
-
-
-
-def test_calculate_portfolio_returns_equal_weight():
-    import pandas as pd
-    import pytest
-
-    from quant_ai_research_platform.market_analysis import (
-        calculate_portfolio_returns,
-    )
-
-    returns = pd.DataFrame(
-        {
-            "AAPL": [0.01, 0.02, -0.01],
-            "MSFT": [0.03, 0.00, 0.01],
-        }
-    )
-
-    result = calculate_portfolio_returns(returns)
-
-    assert result.iloc[0] == pytest.approx(0.02)
-    assert result.iloc[1] == pytest.approx(0.01)
-    assert result.iloc[2] == pytest.approx(0.00)
 
 
 def test_calculate_portfolio_returns_equal_weight():
