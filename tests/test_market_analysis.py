@@ -1,3 +1,4 @@
+import math
 import pytest
 
 
@@ -23,7 +24,9 @@ from quant_ai_research_platform.market_analysis import (
     calculate_rolling_metrics,
     calculate_statistics,
     create_risk_report,
+    create_security_profile,
     find_abnormal_returns,
+    optimize_portfolio,
 )
 
 
@@ -1407,3 +1410,67 @@ def test_analyze_portfolio():
     assert "total_return" in result["statistics"]
     assert "sharpe_ratio" in result["statistics"]
     assert "max_drawdown" in result["statistics"]
+def test_optimize_portfolio_weights_sum_to_one():
+    returns = pd.DataFrame(
+        {
+            "AAA": [0.01, 0.02, -0.01, 0.015, 0.005],
+            "BBB": [0.005, 0.01, 0.002, 0.008, 0.004],
+            "CCC": [-0.005, 0.015, 0.01, -0.002, 0.012],
+        }
+    )
+
+    result = optimize_portfolio(returns)
+
+    assert math.isclose(
+        sum(result["weights"].values()),
+        1.0,
+        rel_tol=1e-6,
+        abs_tol=1e-6,
+    )
+
+    assert all(
+        0.0 <= weight <= 1.0
+        for weight in result["weights"].values()
+    )
+
+
+def test_optimize_portfolio_returns_expected_structure():
+    returns = pd.DataFrame(
+        {
+            "AAA": [0.01, 0.02, -0.01, 0.015, 0.005],
+            "BBB": [0.005, 0.01, 0.002, 0.008, 0.004],
+            "CCC": [-0.005, 0.015, 0.01, -0.002, 0.012],
+        }
+    )
+
+    result = optimize_portfolio(
+        returns,
+        risk_free_rate=0.02,
+    )
+
+    assert set(result) == {
+        "weights",
+        "returns",
+        "statistics",
+        "risk_free_rate",
+    }
+    assert result["risk_free_rate"] == 0.02
+    assert set(result["weights"]) == {"AAA", "BBB", "CCC"}
+    assert isinstance(result["returns"], pd.Series)
+    assert {
+        "total_return",
+        "annualized_return",
+        "annualized_volatility",
+        "sharpe_ratio",
+        "max_drawdown",
+    } == set(result["statistics"])
+
+
+def test_optimize_portfolio_rejects_empty_returns():
+    returns = pd.DataFrame()
+
+    with pytest.raises(
+        ValueError,
+        match="Returns data cannot be empty",
+    ):
+        optimize_portfolio(returns)

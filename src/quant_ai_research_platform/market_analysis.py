@@ -547,3 +547,75 @@ def analyze_portfolio(
         "returns": portfolio_returns,
         "statistics": statistics,
     }
+def optimize_portfolio(
+    returns: pd.DataFrame,
+    risk_free_rate: float = 0.0,
+) -> dict:
+    """Find long-only portfolio weights that maximize the Sharpe ratio."""
+    if returns.empty:
+        raise ValueError("Returns data cannot be empty")
+
+    clean_returns = returns.dropna()
+
+    if clean_returns.empty:
+        raise ValueError("Returns data cannot be empty after removing missing values")
+
+    from scipy.optimize import minimize
+
+    annual_returns = clean_returns.mean() * TRADING_DAYS
+    annual_covariance = clean_returns.cov() * TRADING_DAYS
+    asset_count = len(clean_returns.columns)
+
+    def negative_sharpe(weights):
+        portfolio_return = weights @ annual_returns
+        portfolio_volatility = math.sqrt(
+            weights @ annual_covariance @ weights
+        )
+
+        if portfolio_volatility == 0:
+            return float("inf")
+
+        return -(
+            (portfolio_return - risk_free_rate)
+            / portfolio_volatility
+        )
+
+    initial_weights = [1 / asset_count] * asset_count
+    bounds = [(0.0, 1.0)] * asset_count
+    constraints = {
+        "type": "eq",
+        "fun": lambda weights: weights.sum() - 1.0,
+    }
+
+    result = minimize(
+        negative_sharpe,
+        initial_weights,
+        method="SLSQP",
+        bounds=bounds,
+        constraints=constraints,
+    )
+
+    if not result.success:
+        raise RuntimeError(
+            f"Portfolio optimization failed: {result.message}"
+        )
+
+    normalized_weights = result.x / result.x.sum()
+
+    optimized_weights = {
+        column: float(weight)
+        for column, weight in zip(clean_returns.columns, normalized_weights)
+    }
+
+    portfolio_returns = calculate_portfolio_returns(
+        clean_returns,
+        optimized_weights,
+    )
+    statistics = calculate_portfolio_statistics(portfolio_returns)
+
+    return {
+        "weights": optimized_weights,
+        "returns": portfolio_returns,
+        "statistics": statistics,
+        "risk_free_rate": risk_free_rate,
+    }
