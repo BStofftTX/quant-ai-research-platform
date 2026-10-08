@@ -2,9 +2,11 @@ import pandas as pd
 import pytest
 
 from quant_ai_research_platform.modeling import (
-    create_features,
     create_target,
+    split_model_dataset,
 )
+
+
 def test_create_target_uses_next_day_return():
     data = pd.DataFrame({"Close": [100.0, 110.0, 105.0, 120.0]})
 
@@ -12,11 +14,7 @@ def test_create_target_uses_next_day_return():
 
     assert target.tolist() == [1, 0, 1]
 
-from quant_ai_research_platform.modeling import (
-    create_features,
-    create_target,
-    split_model_dataset,
-)
+
 def test_split_model_dataset_preserves_time_order():
     dataset = pd.DataFrame(
         {
@@ -30,6 +28,7 @@ def test_split_model_dataset_preserves_time_order():
     assert len(train) == 8
     assert len(test) == 2
     assert train.index.max() < test.index.min()
+
 
 def test_split_model_dataset_rejects_invalid_fraction():
     dataset = pd.DataFrame(

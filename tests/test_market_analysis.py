@@ -1,4 +1,5 @@
 import math
+
 import pytest
 
 
@@ -24,7 +25,6 @@ from quant_ai_research_platform.market_analysis import (
     calculate_rolling_metrics,
     calculate_statistics,
     create_risk_report,
-    create_security_profile,
     find_abnormal_returns,
     optimize_portfolio,
 )
@@ -1410,6 +1410,8 @@ def test_analyze_portfolio():
     assert "total_return" in result["statistics"]
     assert "sharpe_ratio" in result["statistics"]
     assert "max_drawdown" in result["statistics"]
+
+
 def test_optimize_portfolio_weights_sum_to_one():
     returns = pd.DataFrame(
         {
@@ -1428,10 +1430,7 @@ def test_optimize_portfolio_weights_sum_to_one():
         abs_tol=1e-6,
     )
 
-    assert all(
-        0.0 <= weight <= 1.0
-        for weight in result["weights"].values()
-    )
+    assert all(0.0 <= weight <= 1.0 for weight in result["weights"].values())
 
 
 def test_optimize_portfolio_returns_expected_structure():

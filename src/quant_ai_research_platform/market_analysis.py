@@ -547,6 +547,8 @@ def analyze_portfolio(
         "returns": portfolio_returns,
         "statistics": statistics,
     }
+
+
 def optimize_portfolio(
     returns: pd.DataFrame,
     risk_free_rate: float = 0.0,
@@ -568,17 +570,12 @@ def optimize_portfolio(
 
     def negative_sharpe(weights):
         portfolio_return = weights @ annual_returns
-        portfolio_volatility = math.sqrt(
-            weights @ annual_covariance @ weights
-        )
+        portfolio_volatility = math.sqrt(weights @ annual_covariance @ weights)
 
         if portfolio_volatility == 0:
             return float("inf")
 
-        return -(
-            (portfolio_return - risk_free_rate)
-            / portfolio_volatility
-        )
+        return -((portfolio_return - risk_free_rate) / portfolio_volatility)
 
     initial_weights = [1 / asset_count] * asset_count
     bounds = [(0.0, 1.0)] * asset_count
@@ -596,9 +593,7 @@ def optimize_portfolio(
     )
 
     if not result.success:
-        raise RuntimeError(
-            f"Portfolio optimization failed: {result.message}"
-        )
+        raise RuntimeError(f"Portfolio optimization failed: {result.message}")
 
     normalized_weights = result.x / result.x.sum()
 
