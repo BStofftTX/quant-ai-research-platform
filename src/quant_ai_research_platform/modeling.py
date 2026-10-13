@@ -446,6 +446,8 @@ def run_walk_forward_backtest(
     results = []
 
     for split_number, (train, test) in enumerate(splits, start=1):
+        # Purge the boundary label: its outcome uses the first test close.
+        train = train.iloc[:-1].copy()
         train_features, train_target = separate_features_target(train)
         test_features, test_target = separate_features_target(test)
 
@@ -460,11 +462,14 @@ def run_walk_forward_backtest(
             threshold=threshold,
         )
 
-        test_data = data.loc[test_features.index]
+        next_day = data.index[data.index.get_loc(test_features.index[-1]) + 1]
+        evaluation_index = test_features.index.append(pd.Index([next_day]))
+        test_data = data.loc[evaluation_index]
+        evaluation_signals = signals.reindex(evaluation_index, fill_value=0.0)
 
         trading_results = compare_strategy_to_buy_and_hold(
             test_data,
-            signals,
+            evaluation_signals,
         )
 
         prediction_results = evaluate_model_predictions(

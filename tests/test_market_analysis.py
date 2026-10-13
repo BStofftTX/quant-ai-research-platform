@@ -1474,3 +1474,97 @@ def test_optimize_portfolio_rejects_empty_returns():
         match="Returns data cannot be empty",
     ):
         optimize_portfolio(returns)
+
+
+def test_walk_forward_includes_final_prediction_return(monkeypatch):
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform import modeling
+
+    data = pd.DataFrame({
+        "Close": [100.0 + i for i in range(35)]
+    })
+
+    class AlwaysInvestedModel:
+        def predict_proba(self, features):
+            import numpy as np
+            return np.tile([0.0, 1.0], (len(features), 1))
+
+        def predict(self, features):
+            import numpy as np
+            return np.ones(len(features), dtype=int)
+
+    monkeypatch.setattr(
+        modeling,
+        "train_logistic_regression",
+        lambda features, target: AlwaysInvestedModel(),
+    )
+
+    results = modeling.run_walk_forward_backtest(
+        data,
+        initial_train_size=12,
+        test_size=4,
+        threshold=0.6,
+    )
+
+    # With every signal invested, the strategy should earn all four
+    # next-day returns in each four-observation test window.
+    first_test_close = data["Close"].iloc[17]
+    final_next_close = data["Close"].iloc[21]
+
+    expected_return = final_next_close / first_test_close - 1
+
+    assert results.iloc[0]["strategy_return"] == pytest.approx(
+        expected_return
+    )
+
+
+def test_walk_forward_purges_boundary_training_label(monkeypatch):
+    import pandas as pd
+
+    from quant_ai_research_platform import modeling
+
+    data = pd.DataFrame({
+        "Close": [100.0 + i for i in range(35)]
+    })
+
+    dataset = modeling.create_model_dataset(data)
+    splits = modeling.create_walk_forward_splits(
+        dataset,
+        initial_train_size=12,
+        test_size=4,
+    )
+
+    first_train, first_test = splits[0]
+    observed_training_indices = []
+
+    class MockModel:
+        def predict_proba(self, features):
+            import numpy as np
+            return np.tile([0.0, 1.0], (len(features), 1))
+
+        def predict(self, features):
+            import numpy as np
+            return np.ones(len(features), dtype=int)
+
+    def capture_training_indices(features, target):
+        observed_training_indices.append(features.index.tolist())
+        return MockModel()
+
+    monkeypatch.setattr(
+        modeling,
+        "train_logistic_regression",
+        capture_training_indices,
+    )
+
+    modeling.run_walk_forward_backtest(
+        data,
+        initial_train_size=12,
+        test_size=4,
+    )
+
+    assert observed_training_indices
+    assert observed_training_indices[0] == first_train.index[:-1].tolist()
+    assert first_train.index[-1] not in observed_training_indices[0]
+    assert first_test.index[0] not in observed_training_indices[0]
