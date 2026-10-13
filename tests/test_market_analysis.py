@@ -1410,6 +1410,8 @@ def test_analyze_portfolio():
     assert "total_return" in result["statistics"]
     assert "sharpe_ratio" in result["statistics"]
     assert "max_drawdown" in result["statistics"]
+
+
 def test_optimize_portfolio_weights_sum_to_one():
     returns = pd.DataFrame(
         {
@@ -1428,10 +1430,7 @@ def test_optimize_portfolio_weights_sum_to_one():
         abs_tol=1e-6,
     )
 
-    assert all(
-        0.0 <= weight <= 1.0
-        for weight in result["weights"].values()
-    )
+    assert all(0.0 <= weight <= 1.0 for weight in result["weights"].values())
 
 
 def test_optimize_portfolio_returns_expected_structure():
@@ -1482,17 +1481,17 @@ def test_walk_forward_includes_final_prediction_return(monkeypatch):
 
     from quant_ai_research_platform import modeling
 
-    data = pd.DataFrame({
-        "Close": [100.0 + i for i in range(35)]
-    })
+    data = pd.DataFrame({"Close": [100.0 + i for i in range(35)]})
 
     class AlwaysInvestedModel:
         def predict_proba(self, features):
             import numpy as np
+
             return np.tile([0.0, 1.0], (len(features), 1))
 
         def predict(self, features):
             import numpy as np
+
             return np.ones(len(features), dtype=int)
 
     monkeypatch.setattr(
@@ -1515,9 +1514,7 @@ def test_walk_forward_includes_final_prediction_return(monkeypatch):
 
     expected_return = final_next_close / first_test_close - 1
 
-    assert results.iloc[0]["strategy_return"] == pytest.approx(
-        expected_return
-    )
+    assert results.iloc[0]["strategy_return"] == pytest.approx(expected_return)
 
 
 def test_walk_forward_purges_boundary_training_label(monkeypatch):
@@ -1525,9 +1522,7 @@ def test_walk_forward_purges_boundary_training_label(monkeypatch):
 
     from quant_ai_research_platform import modeling
 
-    data = pd.DataFrame({
-        "Close": [100.0 + i for i in range(35)]
-    })
+    data = pd.DataFrame({"Close": [100.0 + i for i in range(35)]})
 
     dataset = modeling.create_model_dataset(data)
     splits = modeling.create_walk_forward_splits(
@@ -1542,10 +1537,12 @@ def test_walk_forward_purges_boundary_training_label(monkeypatch):
     class MockModel:
         def predict_proba(self, features):
             import numpy as np
+
             return np.tile([0.0, 1.0], (len(features), 1))
 
         def predict(self, features):
             import numpy as np
+
             return np.ones(len(features), dtype=int)
 
     def capture_training_indices(features, target):
