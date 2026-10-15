@@ -19,6 +19,11 @@ dependencies = [
 [project.scripts]
 quant-ai-research-platform = "quant_ai_research_platform:main"
 
+[project.optional-dependencies]
+pytorch = [
+    "torch>=2.14.1",
+]
+
 [build-system]
 requires = ["uv_build>=0.12.7,<0.13.0"]
 build-backend = "uv_build"
