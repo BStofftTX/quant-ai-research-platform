@@ -1149,6 +1149,127 @@ def test_run_walk_forward_backtest():
     assert "f1" in result.columns
 
 
+def test_run_walk_forward_backtest_accepts_logistic_model_type():
+    import pandas as pd
+
+    from quant_ai_research_platform.modeling import run_walk_forward_backtest
+
+    data = pd.DataFrame(
+        {"Close": [100.0 + i + (2.0 if i % 2 else 0.0) for i in range(35)]}
+    )
+
+    result = run_walk_forward_backtest(
+        data,
+        initial_train_size=12,
+        test_size=4,
+        model_type="logistic",
+    )
+
+    assert not result.empty
+
+
+def test_run_walk_forward_backtest_accepts_pytorch_model_type():
+    import pandas as pd
+    import pytest
+
+    pytest.importorskip("torch")
+
+    from quant_ai_research_platform.modeling import run_walk_forward_backtest
+
+    data = pd.DataFrame(
+        {"Close": [100.0 + i + (2.0 if i % 2 else 0.0) for i in range(35)]}
+    )
+
+    result = run_walk_forward_backtest(
+        data,
+        initial_train_size=12,
+        test_size=4,
+        model_type="pytorch",
+    )
+
+    assert not result.empty
+
+
+def test_run_walk_forward_backtest_rejects_invalid_model_type():
+    import pandas as pd
+    import pytest
+
+    from quant_ai_research_platform.modeling import run_walk_forward_backtest
+
+    with pytest.raises(ValueError, match="model_type"):
+        run_walk_forward_backtest(
+            pd.DataFrame({"Close": [100.0 + i for i in range(20)]}),
+            initial_train_size=12,
+            test_size=4,
+            model_type="unknown",
+        )
+
+
+def test_pytorch_walk_forward_scaling_uses_training_window_only(monkeypatch):
+    import pandas as pd
+    import pytest
+
+    pytest.importorskip("torch")
+
+    from quant_ai_research_platform import modeling
+
+    data = pd.DataFrame({"Close": [100.0 + i for i in range(35)]})
+    fit_values = []
+    transformed_values = []
+
+    class RecordingScaler:
+        def fit_transform(self, features):
+            fit_values.append(features.copy())
+            return features.to_numpy()
+
+        def transform(self, features):
+            transformed_values.append(features.copy())
+            return features.to_numpy()
+
+    class StubTorchModel:
+        def fit(self, features, target):
+            assert features.index.is_monotonic_increasing
+            assert features.columns.tolist() == [
+                "return_1d",
+                "return_5d",
+                "volatility_5d",
+            ]
+            return self
+
+        def predict_proba(self, features):
+            import numpy as np
+
+            return np.tile([0.0, 1.0], (len(features), 1))
+
+        def predict(self, features):
+            import numpy as np
+
+            return np.ones(len(features), dtype=int)
+
+    monkeypatch.setattr(modeling, "StandardScaler", RecordingScaler)
+    monkeypatch.setattr(
+        "quant_ai_research_platform.torch_model.TorchMarketClassifier",
+        StubTorchModel,
+    )
+
+    modeling.run_walk_forward_backtest(
+        data,
+        initial_train_size=12,
+        test_size=4,
+        model_type="pytorch",
+    )
+
+    dataset = modeling.create_model_dataset(data)
+    first_train, first_test = modeling.create_walk_forward_splits(
+        dataset,
+        initial_train_size=12,
+        test_size=4,
+    )[0]
+    assert fit_values[0].index.tolist() == first_train.index[:-1].tolist()
+    assert transformed_values[0].index.tolist() == first_test.index.tolist()
+    assert fit_values[0].index.max() < transformed_values[0].index.min()
+
+
 def test_summarize_walk_forward_results():
     import pandas as pd
 

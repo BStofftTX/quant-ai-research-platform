@@ -7,6 +7,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
+from sklearn.preprocessing import StandardScaler
 
 from quant_ai_research_platform.backtest import compare_strategy_to_buy_and_hold
 
@@ -434,7 +435,11 @@ def run_walk_forward_backtest(
     initial_train_size: int,
     test_size: int,
     threshold: float = 0.6,
+    model_type: str = "logistic",
 ) -> pd.DataFrame:
+    if model_type not in {"logistic", "pytorch"}:
+        raise ValueError("model_type must be 'logistic' or 'pytorch'")
+
     dataset = create_model_dataset(data)
 
     splits = create_walk_forward_splits(
@@ -451,10 +456,25 @@ def run_walk_forward_backtest(
         train_features, train_target = separate_features_target(train)
         test_features, test_target = separate_features_target(test)
 
-        model = train_logistic_regression(
-            train_features,
-            train_target,
-        )
+        if model_type == "logistic":
+            model = train_logistic_regression(train_features, train_target)
+        else:
+            from quant_ai_research_platform.torch_model import TorchMarketClassifier
+
+            scaler = StandardScaler()
+            scaled_train = pd.DataFrame(
+                scaler.fit_transform(train_features),
+                index=train_features.index,
+                columns=train_features.columns,
+            )
+            scaled_test = pd.DataFrame(
+                scaler.transform(test_features),
+                index=test_features.index,
+                columns=test_features.columns,
+            )
+            model = TorchMarketClassifier()
+            model.fit(scaled_train, train_target)
+            test_features = scaled_test
 
         signals = generate_threshold_signals(
             model,
