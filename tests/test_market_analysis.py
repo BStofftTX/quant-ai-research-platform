@@ -15,6 +15,21 @@ def test_buy_and_hold_return():
     assert result == pytest.approx(0.10)
 
 
+def test_strategy_returns_use_prior_period_signal_to_prevent_lookahead():
+    import pandas as pd
+
+    from quant_ai_research_platform.backtest import calculate_strategy_returns
+
+    data = pd.DataFrame({"Close": [100.0, 110.0, 90.0]})
+    signals = pd.Series([1.0, 0.0, 1.0])
+
+    result = calculate_strategy_returns(data, signals)
+
+    assert result.iloc[0] == pytest.approx(0.0)
+    assert result.iloc[1] == pytest.approx(0.10)
+    assert result.iloc[2] == pytest.approx(0.0)
+
+
 from datetime import date
 
 import pandas as pd
