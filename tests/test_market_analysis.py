@@ -1270,6 +1270,59 @@ def test_pytorch_walk_forward_scaling_uses_training_window_only(monkeypatch):
     assert fit_values[0].index.max() < transformed_values[0].index.min()
 
 
+def test_pytorch_walk_forward_uses_fresh_model_for_each_split(monkeypatch):
+    import numpy as np
+    import pandas as pd
+    import pytest
+
+    pytest.importorskip("torch")
+
+    from quant_ai_research_platform import modeling
+
+    instances = []
+
+    class StubTorchModel:
+        def __init__(self):
+            self.fit_indexes = None
+            instances.append(self)
+
+        def fit(self, features, target):
+            self.fit_indexes = features.index.copy()
+            return self
+
+        def predict_proba(self, features):
+            self.last_prediction_indexes = features.index.copy()
+            return np.tile([0.25, 0.75], (len(features), 1))
+
+        def predict(self, features):
+            return np.ones(len(features), dtype=int)
+
+    monkeypatch.setattr(
+        "quant_ai_research_platform.torch_model.TorchMarketClassifier",
+        StubTorchModel,
+    )
+
+    data = pd.DataFrame({"Close": [100.0 + i for i in range(35)]})
+    result = modeling.run_walk_forward_backtest(
+        data,
+        initial_train_size=12,
+        test_size=4,
+        model_type="pytorch",
+    )
+
+    splits = modeling.create_walk_forward_splits(
+        modeling.create_model_dataset(data),
+        initial_train_size=12,
+        test_size=4,
+    )
+    assert len(instances) == len(splits)
+    assert len({id(instance) for instance in instances}) == len(instances)
+    for instance, (train, test) in zip(instances, splits):
+        assert instance.fit_indexes.tolist() == train.index[:-1].tolist()
+        assert instance.last_prediction_indexes.tolist() == test.index.tolist()
+    assert len(result) == len(splits)
+
+
 def test_summarize_walk_forward_results():
     import pandas as pd
 

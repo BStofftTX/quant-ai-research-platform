@@ -430,6 +430,28 @@ def create_walk_forward_splits(
     return splits
 
 
+def _scale_pytorch_features(
+    train_features: pd.DataFrame,
+    test_features: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Scale each walk-forward split using statistics from its train window."""
+    if list(train_features.columns) != list(test_features.columns):
+        raise ValueError("train and test features must have matching columns")
+
+    scaler = StandardScaler()
+    scaled_train = pd.DataFrame(
+        scaler.fit_transform(train_features),
+        index=train_features.index,
+        columns=train_features.columns,
+    )
+    scaled_test = pd.DataFrame(
+        scaler.transform(test_features),
+        index=test_features.index,
+        columns=test_features.columns,
+    )
+    return scaled_train, scaled_test
+
+
 def run_walk_forward_backtest(
     data: pd.DataFrame,
     initial_train_size: int,
@@ -450,6 +472,10 @@ def run_walk_forward_backtest(
 
     results = []
 
+    if model_type == "pytorch":
+        # Keep torch optional for the default logistic-regression path.
+        from quant_ai_research_platform.torch_model import TorchMarketClassifier
+
     for split_number, (train, test) in enumerate(splits, start=1):
         # Purge the boundary label: its outcome uses the first test close.
         train = train.iloc[:-1].copy()
@@ -459,19 +485,11 @@ def run_walk_forward_backtest(
         if model_type == "logistic":
             model = train_logistic_regression(train_features, train_target)
         else:
-            from quant_ai_research_platform.torch_model import TorchMarketClassifier
-
-            scaler = StandardScaler()
-            scaled_train = pd.DataFrame(
-                scaler.fit_transform(train_features),
-                index=train_features.index,
-                columns=train_features.columns,
+            scaled_train, scaled_test = _scale_pytorch_features(
+                train_features,
+                test_features,
             )
-            scaled_test = pd.DataFrame(
-                scaler.transform(test_features),
-                index=test_features.index,
-                columns=test_features.columns,
-            )
+            # Construct inside the loop so no state is shared between splits.
             model = TorchMarketClassifier()
             model.fit(scaled_train, train_target)
             test_features = scaled_test
