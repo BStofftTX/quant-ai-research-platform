@@ -78,6 +78,8 @@ flowchart LR
 - Validation-based threshold selection
 - Strategy versus buy-and-hold comparison
 - Walk-forward model evaluation and stability summaries
+- Optional PyTorch walk-forward comparisons with train-window-only feature scaling
+- Reproducible Streamlit demonstration using local synthetic data (no PostgreSQL required)
 
 ## Quick start
 
@@ -94,6 +96,19 @@ git clone https://github.com/BStofftTX/quant-ai-research-platform.git
 cd quant-ai-research-platform
 uv sync --locked --dev
 ```
+
+To run the local demonstration, install the optional demo and PyTorch extras:
+
+```bash
+uv sync --extra demo --extra pytorch --dev
+uv run streamlit run app.py
+```
+
+The demonstration is self-contained: it generates a deterministic synthetic
+OHLC series and does not require PostgreSQL, market-data credentials, or network
+access. It is suitable for portfolio review, not production trading. See
+[DEMO.md](docs/DEMO.md), [SAMPLE_ANALYSIS_REPORT.md](docs/SAMPLE_ANALYSIS_REPORT.md),
+and [DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md).
 
 ### Run the automated checks
 
