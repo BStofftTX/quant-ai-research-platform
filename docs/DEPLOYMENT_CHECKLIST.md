@@ -7,6 +7,18 @@ official Streamlit documentation describes it as a free deployment option for
 non-commercial, personal, and educational apps, with GitHub-based deployment.
 The app must remain self-contained and contain no secrets.
 
+## Community Cloud entrypoint
+
+- Repository branch: `feature/macrostofft-deployment-demo`
+- Entrypoint: `streamlit_app/streamlit_app.py`
+- Python version: 3.12
+- Dependency file: `streamlit_app/requirements.txt`
+
+The entrypoint directory is intentional. Community Cloud resolves dependency
+files from the entrypoint directory before the repository root; this prevents
+the root `uv.lock` development environment from installing optional PyTorch and
+research-only dependencies for the public demonstration.
+
 ## Before deployment
 
 - [ ] Human review of the feature-branch diff and sample output.
@@ -15,6 +27,7 @@ The app must remain self-contained and contain no secrets.
 - [ ] Run `uv run ruff check .` and `uv run ruff format --check .`.
 - [ ] Run `uv run pip-audit` after the lockfile is refreshed.
 - [ ] Test `uv run streamlit run app.py` locally with `uv sync --extra demo --extra pytorch --dev`.
+- [ ] Test `streamlit run streamlit_app/streamlit_app.py` locally using the slim Cloud dependency profile.
 - [ ] Confirm the demo uses only seeded synthetic data and no PostgreSQL connection.
 
 ## Configuration and dependencies
@@ -24,6 +37,10 @@ The app must remain self-contained and contain no secrets.
 - `torch` optional extra for the PyTorch comparison
 - Standard project dependencies for pandas, NumPy, scikit-learn, and SciPy
 - No database URL, API key, brokerage credential, or private data required
+
+The Cloud profile pins only Streamlit, NumPy, pandas, SciPy, and scikit-learn.
+It intentionally omits `torch`, `psycopg`, and `yfinance`. The PyTorch panel
+degrades to the logistic-regression result when PyTorch is absent.
 
 ## Secrets and security
 

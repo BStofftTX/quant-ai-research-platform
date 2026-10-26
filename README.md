@@ -110,6 +110,16 @@ access. It is suitable for portfolio review, not production trading. See
 [DEMO.md](docs/DEMO.md), [SAMPLE_ANALYSIS_REPORT.md](docs/SAMPLE_ANALYSIS_REPORT.md),
 and [DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md).
 
+### Streamlit Community Cloud profile
+
+For a slim hosted demonstration, deploy
+`streamlit_app/streamlit_app.py` and select Python 3.12. The entrypoint has its
+own pinned dependency file, so Community Cloud uses only the packages needed by
+the demo rather than the repository's full development lockfile. The default
+Cloud profile intentionally excludes PostgreSQL, yfinance, and optional PyTorch.
+The application remains functional without PyTorch and makes that status clear
+in the interface. See [STREAMLIT_CLOUD.md](docs/STREAMLIT_CLOUD.md).
+
 ### Run the automated checks
 
 ```bash

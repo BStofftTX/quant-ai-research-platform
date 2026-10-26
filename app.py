@@ -75,13 +75,34 @@ def run_demo() -> None:
         )
         return
 
-    st.set_page_config(page_title="Quant AI Research Demo", layout="wide")
-    st.title("Quant AI Research Platform — Offline Demo")
-    st.caption("Reproducible synthetic OHLC data • seed 42 • research/education only")
+    st.set_page_config(
+        page_title="Quant AI Research Demo",
+        page_icon="📈",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+    st.title("Quant AI Research Platform")
+    st.subheader("Offline research demonstration")
+    st.info(
+        "This application uses deterministic synthetic OHLC data (seed 42). "
+        "It does not access live prices, a database, credentials, or a brokerage account."
+    )
     data = make_synthetic_ohlc()
-    selected = st.sidebar.selectbox("Security", ASSETS)
-    threshold = st.sidebar.slider("Model signal threshold", 0.50, 0.80, 0.60, 0.05)
-    st.sidebar.info("No network, PostgreSQL, credentials, or external data are used.")
+    st.sidebar.header("Demo controls")
+    selected = st.sidebar.selectbox("Synthetic security", ASSETS)
+    threshold = st.sidebar.slider("Signal threshold", 0.50, 0.80, 0.60, 0.05)
+    st.sidebar.divider()
+    st.sidebar.caption(
+        "Research/education only. Results are a reproducible pipeline demonstration, not live-market performance or investment advice."
+    )
+
+    with st.expander("Data and model disclosures", expanded=False):
+        st.markdown(
+            "- **Data:** locally generated synthetic OHLC series; no market, customer, or personal data.\n"
+            "- **Reproducibility:** fixed NumPy seed `42`; changing a control does not retrieve external data.\n"
+            "- **Models:** chronological walk-forward evaluation; the PyTorch comparison is optional.\n"
+            "- **Limits:** this is not investment advice, a trading system, or evidence of predictive performance."
+        )
 
     tabs = st.tabs(["Security analysis", "Portfolio risk", "Walk-forward models"])
 
@@ -92,6 +113,7 @@ def run_demo() -> None:
         comparison = calculate_benchmark_metrics(security, benchmark)
         profile = create_security_profile(stats, comparison)
         st.subheader(f"{selected} versus synthetic {BENCHMARK}")
+        st.caption("Price paths are illustrative outputs from the seeded generator.")
         st.line_chart(
             pd.DataFrame({selected: security["Close"], BENCHMARK: benchmark["Close"]})
         )
@@ -130,6 +152,9 @@ def run_demo() -> None:
         equal = analyze_portfolio(returns)
         optimized = optimize_portfolio(returns)
         st.subheader("Synthetic portfolio risk")
+        st.caption(
+            "Weights and risk statistics are calculated from the generated series only; no portfolio is traded or managed."
+        )
         left, right = st.columns(2)
         for container, title, result in (
             (left, "Equal-weight portfolio", equal),
@@ -164,9 +189,9 @@ def run_demo() -> None:
         )
 
     with tabs[2]:
-        st.subheader("Walk-forward logistic regression versus PyTorch")
+        st.subheader("Walk-forward model comparison")
         st.write(
-            "Each split trains only on prior observations; the comparison uses the same synthetic security and threshold."
+            "Each split trains only on prior observations. Both paths use the same synthetic security and signal threshold."
         )
         initial_train_size, test_size = 260, 40
         logistic = run_walk_forward_backtest(
@@ -179,7 +204,7 @@ def run_demo() -> None:
                     data[selected], initial_train_size, test_size, threshold, "pytorch"
                 )
                 st.dataframe(
-                    pytorch.assign(model="PyTorch"),
+                    pytorch.assign(model="PyTorch (optional)"),
                     hide_index=True,
                     use_container_width=True,
                 )
@@ -197,14 +222,15 @@ def run_demo() -> None:
                 )
             except (ImportError, RuntimeError, ValueError) as error:
                 st.warning(
-                    f"PyTorch comparison unavailable: {error}. Logistic regression results remain available."
+                    f"PyTorch comparison unavailable: {error}. Logistic regression remains available."
                 )
         else:
             st.info(
-                "Optional PyTorch is unavailable. Install the project's PyTorch extra to enable that comparison; logistic regression remains available."
+                "The slim Cloud profile omits optional PyTorch to keep startup resources modest. "
+                "Logistic regression remains fully available."
             )
         st.caption(
-            "Walk-forward results are illustrative and are not investment advice."
+            "Walk-forward results are illustrative, use synthetic data, and are not investment advice."
         )
 
 
