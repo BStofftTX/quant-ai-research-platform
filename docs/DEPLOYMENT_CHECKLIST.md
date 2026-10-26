@@ -2,10 +2,10 @@
 
 ## Recommended first host
 
-Use **Streamlit Community Cloud** for the first portfolio demonstration. The
-official Streamlit documentation describes it as a free deployment option for
-non-commercial, personal, and educational apps, with GitHub-based deployment.
-The app must remain self-contained and contain no secrets.
+Use **Streamlit Community Cloud** for the first portfolio demonstration. It is
+GitHub-based and the app must remain self-contained and contain no secrets.
+Resource limits are shared and may change, so this is appropriate for a small
+research demonstration rather than a production client service.
 
 ## Community Cloud entrypoint
 
@@ -25,7 +25,8 @@ research-only dependencies for the public demonstration.
 - [ ] Confirm the repository and app are safe to make public.
 - [ ] Run `uv run pytest -q`.
 - [ ] Run `uv run ruff check .` and `uv run ruff format --check .`.
-- [ ] Run `uv run pip-audit` after the lockfile is refreshed.
+- [ ] Run `uv run pip-audit` for the full development environment and
+  `uv run pip-audit -r streamlit_app/requirements.txt` for the Cloud profile.
 - [ ] Test `uv run streamlit run app.py` locally with `uv sync --extra demo --extra pytorch --dev`.
 - [ ] Test `streamlit run streamlit_app/streamlit_app.py` locally using the slim Cloud dependency profile.
 - [ ] Confirm the demo uses only seeded synthetic data and no PostgreSQL connection.
@@ -52,9 +53,8 @@ degrades to the logistic-regression result when PyTorch is absent.
 
 ## Cost and hosting decision
 
-- **First choice:** Streamlit Community Cloud; no infrastructure charge is
-  expected for this demonstration, subject to the provider's current terms and
-  resource limits.
+- **First choice:** Streamlit Community Cloud, subject to Bruce's deployment
+  approval and the provider's current terms and shared resource limits.
 - **Fallback:** a small container service or a local/private host if the app
   later needs private data, persistent storage, scheduled jobs, or stricter
   access control. Re-evaluate cost and security at that point.

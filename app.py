@@ -79,7 +79,7 @@ def run_demo() -> None:
         page_title="Quant AI Research Demo",
         page_icon="📈",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="auto",
     )
     st.title("Quant AI Research Platform")
     st.subheader("Offline research demonstration")
