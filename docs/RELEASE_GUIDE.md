@@ -57,8 +57,9 @@ uv run pip-audit -r streamlit_app/requirements.txt
 
 ## Rollback and troubleshooting
 
-- **Bad app revision:** choose the previously reviewed feature-branch commit
-  in the Cloud deployment settings, then redeploy. Do not force-push.
+- **Bad app revision:** create a normal revert commit on the deployment branch
+  to restore the previously reviewed state, then let Community Cloud redeploy.
+  Do not force-push.
 - **Dependency/build failure:** compare the entrypoint, Python version, and
   `streamlit_app/requirements.txt`; do not add the root `uv.lock` or optional
   research dependencies as a workaround.
