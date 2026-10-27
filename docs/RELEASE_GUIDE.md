@@ -40,10 +40,13 @@ PyTorch, PostgreSQL, and yfinance dependencies out of the hosted demo.
 
 ```bash
 uv venv --python 3.12 .venv-cloud
-.venv-cloud/bin/pip install -r streamlit_app/requirements.txt
+uv pip install --python .venv-cloud/bin/python -r streamlit_app/requirements.txt
 PYTHONPATH=.:src .venv-cloud/bin/python -c "import app; print('offline-demo-import-ok')"
 PYTHONPATH=.:src .venv-cloud/bin/streamlit run streamlit_app/streamlit_app.py
 ```
+
+`uv venv` intentionally does not seed `pip`; use `uv pip` as shown rather
+than assuming a `.venv-cloud/bin/pip` executable exists.
 
 Run the full project checks separately:
 
