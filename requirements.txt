@@ -1,0 +1,3 @@
+# Streamlit Community Cloud bootstrap: install the project and its Python dependencies.
+-e .
+streamlit>=1.40,<2
