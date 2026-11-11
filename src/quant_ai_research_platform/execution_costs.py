@@ -43,7 +43,11 @@ def cost_adjusted_returns(
     cost = turnover * (fee_bps + spread_bps / 2.0 + slippage_bps) / 10_000.0
     net = gross - cost
     return pd.DataFrame(
-        {"gross_return": gross, "turnover": turnover,
-         "execution_cost": cost, "net_return": net},
+        {
+            "gross_return": gross,
+            "turnover": turnover,
+            "execution_cost": cost,
+            "net_return": net,
+        },
         index=prices.index,
     )

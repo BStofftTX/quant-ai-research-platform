@@ -3,8 +3,6 @@ import math
 import pandas as pd
 from scipy import stats
 
-from quant_ai_research_platform.etl import get_stored_market_data
-
 TRADING_DAYS = 252
 BENCHMARK = "SPY"
 DEFAULT_SYMBOLS = (
@@ -310,6 +308,10 @@ def analyze_symbol(
     _benchmark_stats: dict,
 ) -> dict:
     """Analyze one security relative to the benchmark."""
+    # Keep the offline Streamlit demonstration independent of the optional
+    # market-ingestion stack (PostgreSQL/yfinance).
+    from quant_ai_research_platform.etl import get_stored_market_data
+
     stock_data = get_stored_market_data(symbol)
     common_dates = stock_data.index.intersection(benchmark_data.index)
     stock_data = stock_data.loc[common_dates]
@@ -367,6 +369,10 @@ def analyze_symbol(
 
 
 def main() -> None:
+    # This command-line workflow reads stored market data; importing it here
+    # keeps the synthetic, offline demonstration deployable without yfinance.
+    from quant_ai_research_platform.etl import get_stored_market_data
+
     raw_symbols = input(
         f"Enter ticker symbols separated by commas [{DEFAULT_SYMBOLS}]: "
     ).strip()
