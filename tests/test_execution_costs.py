@@ -11,9 +11,9 @@ def test_entry_and_exit_costs_apply_on_next_bar():
     result = cost_adjusted_returns(prices, positions, fee_bps=10)
     assert result["turnover"].tolist() == [0.0, 1.0, 0.0, 1.0]
     assert result["gross_return"].iloc[0] == 0
-    assert result["gross_return"].iloc[1] == pytest.approx(.1)
-    assert result["net_return"].iloc[1] == pytest.approx(.099)
-    assert result["net_return"].iloc[3] == pytest.approx(-.001)
+    assert result["gross_return"].iloc[1] == pytest.approx(0.1)
+    assert result["net_return"].iloc[1] == pytest.approx(0.099)
+    assert result["net_return"].iloc[3] == pytest.approx(-0.001)
 
 
 def test_zero_cost_equals_gross():
