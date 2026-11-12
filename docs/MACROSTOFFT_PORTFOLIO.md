@@ -1,23 +1,26 @@
-# MacroStofft portfolio copy — Quant-AI
+# MacroStofft portfolio copy — MarketScope Analytics
 
 ## Short description
 
-**Quant-AI** is a reproducible quantitative-research demonstration that shows
-synthetic security analytics, portfolio risk measurement, and chronological
-walk-forward model evaluation. It is designed to explain disciplined data and
-ML workflows—not to provide investment advice, live trading, or financial
-management.
+**MarketScope Analytics** evaluates synthetic securities and portfolios,
+measures performance and financial risk, compares benchmark relationships, and
+examines whether quantitative and machine-learning signals remain stable through
+chronological and walk-forward testing.
 
 ## Suggested caption
 
-"A private research demonstration of synthetic market analytics, risk metrics,
-and walk-forward ML evaluation—built to make assumptions, limitations, and
-reproducibility visible."
+"A public research demonstration using deterministic synthetic market data. It
+does not access live prices, brokerage accounts, customer portfolios, or
+production databases; it is not investment advice or a trading system."
 
 ## Visual assets awaiting approval
 
-- `screenshots/quant-ai-security-desktop.png`
-- `screenshots/quant-ai-security-mobile.png`
+- `screenshots/marketscope-security-desktop.png` — Alt text: "MarketScope
+  Analytics by MacroStofft on desktop, showing deterministic synthetic security
+  analysis against a benchmark and the synthetic-data disclosure."
+- `screenshots/marketscope-security-mobile.png` — Alt text: "MarketScope
+  Analytics by MacroStofft on a mobile viewport, showing the synthetic-data
+  disclosure and security-analysis tab."
 
 Do not publish these assets or this copy until MacroStofft approves the target
 site, audience, and disclosures.

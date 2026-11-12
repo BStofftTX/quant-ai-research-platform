@@ -9,7 +9,7 @@ research demonstration rather than a production client service.
 
 ## Community Cloud entrypoint
 
-- Repository branch: `feature/macrostofft-deployment-demo`
+- Repository branch: `main`
 - Entrypoint: `streamlit_app/streamlit_app.py`
 - Python version: 3.12
 - Dependency file: `streamlit_app/requirements.txt`
@@ -21,7 +21,7 @@ research-only dependencies for the public demonstration.
 
 ## Before deployment
 
-- [ ] Human review of the feature-branch diff and sample output.
+- [ ] Human review of the `main` deployment configuration and sample output.
 - [ ] Confirm the repository and app are safe to make public.
 - [ ] Run `uv run pytest -q`.
 - [ ] Run `uv run ruff check .` and `uv run ruff format --check .`.

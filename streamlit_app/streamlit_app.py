@@ -1,4 +1,4 @@
-"""Community Cloud entrypoint for the slim, offline Quant-AI demonstration."""
+"""Community Cloud entrypoint for the slim, offline MarketScope demonstration."""
 
 from __future__ import annotations
 

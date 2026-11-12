@@ -2,7 +2,7 @@
 
 ## Deployment target
 
-Deploy the `feature/macrostofft-deployment-demo` branch with:
+Deploy the `main` branch with:
 
 - **Entrypoint:** `streamlit_app/streamlit_app.py`
 - **Python:** 3.12
@@ -51,7 +51,7 @@ data to the public demonstration without explicit approval.
 
 1. Review the deployed-branch diff and the rendered synthetic-data disclosures.
 2. Confirm repository visibility and that only approved public material exists.
-3. In Streamlit Community Cloud, select the feature branch and the entrypoint
+3. In Streamlit Community Cloud, select `main` and the entrypoint
    above; retain Python 3.12.
 4. Leave the secrets field empty.
 5. Verify the deployed page, disclosures, and optional-PyTorch fallback.
