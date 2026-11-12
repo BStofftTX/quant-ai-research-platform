@@ -1,4 +1,4 @@
-# Quant-AI Streamlit release guide
+# MarketScope Analytics Streamlit release guide
 
 ## Scope and safety boundary
 
@@ -24,8 +24,9 @@ reviewed before use on MacroStofft.com or any other public surface.
 
 ## Exact Community Cloud configuration
 
-- Repository: `BStofftTX/quant-ai-research-platform`
-- Branch: `feature/macrostofft-deployment-demo`
+- Repository: `BStofftTX/quant-ai-research-platform` (rename only after the
+  documented Streamlit configuration is backed up and verified)
+- Branch: `main`
 - Entrypoint: `streamlit_app/streamlit_app.py`
 - Python: `3.12`
 - Dependencies: `streamlit_app/requirements.txt`

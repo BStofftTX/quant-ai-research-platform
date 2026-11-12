@@ -1,11 +1,15 @@
-# Quant-AI Research Platform
+# MarketScope Analytics by MacroStofft
 
 [![CI](https://github.com/BStofftTX/quant-ai-research-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/BStofftTX/quant-ai-research-platform/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/BStofftTX/quant-ai-research-platform/actions/workflows/codeql.yml/badge.svg)](https://github.com/BStofftTX/quant-ai-research-platform/actions/workflows/codeql.yml)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Status: Research](https://img.shields.io/badge/status-research-blue)](#project-status)
 
-A Python quantitative-engineering and machine-learning research platform for ingesting, storing, analyzing, modeling, and backtesting financial market data.
+**Evidence-based market, risk, and portfolio research.**
+
+MarketScope Analytics is a research platform for evaluating securities,
+portfolio performance, financial risk, benchmark relationships, and
+quantitative models through reproducible analysis and time-ordered testing.
 
 The project emphasizes modular design, reproducible time-series evaluation, explicit risk measurement, and automated tests. It is designed for research and education—not live trading or investment advice.
 

@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This report is a reproducible demonstration artifact for the Quant-AI Research
-Platform. It is generated from deterministic synthetic OHLC data and is not a
-claim about live-market performance.
+This report is a reproducible demonstration artifact for MarketScope Analytics
+by MacroStofft. It is generated from deterministic synthetic OHLC data and is
+not a claim about live-market performance.
 
 ## Demonstrated workflow
 

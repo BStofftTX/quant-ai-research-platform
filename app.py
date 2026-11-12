@@ -1,4 +1,4 @@
-"""Minimal, offline Streamlit demonstration for the quant research library.
+"""Minimal, offline Streamlit demonstration for MarketScope Analytics.
 
 The demo intentionally creates all market data locally.  It does not connect to
 PostgreSQL, download prices, or require credentials.
@@ -76,16 +76,18 @@ def run_demo() -> None:
         return
 
     st.set_page_config(
-        page_title="Quant AI Research Demo",
+        page_title="MarketScope Analytics by MacroStofft",
         page_icon="📈",
         layout="wide",
         initial_sidebar_state="auto",
     )
-    st.title("Quant AI Research Platform")
-    st.subheader("Offline research demonstration")
+    st.title("MarketScope Analytics")
+    st.markdown("**by MacroStofft**")
+    st.caption("Evidence-based market, risk, and portfolio research.")
     st.info(
         "This application uses deterministic synthetic OHLC data (seed 42). "
-        "It does not access live prices, a database, credentials, or a brokerage account."
+        "It does not access live prices, brokerage accounts, customer portfolios, "
+        "or production databases; it does not execute trades."
     )
     data = make_synthetic_ohlc()
     st.sidebar.header("Demo controls")
@@ -93,7 +95,8 @@ def run_demo() -> None:
     threshold = st.sidebar.slider("Signal threshold", 0.50, 0.80, 0.60, 0.05)
     st.sidebar.divider()
     st.sidebar.caption(
-        "Research/education only. Results are a reproducible pipeline demonstration, not live-market performance or investment advice."
+        "Research software only. Results are a reproducible pipeline demonstration, "
+        "not live-market performance or investment advice."
     )
 
     with st.expander("Data and model disclosures", expanded=False):
@@ -101,7 +104,7 @@ def run_demo() -> None:
             "- **Data:** locally generated synthetic OHLC series; no market, customer, or personal data.\n"
             "- **Reproducibility:** fixed NumPy seed `42`; changing a control does not retrieve external data.\n"
             "- **Models:** chronological walk-forward evaluation; the PyTorch comparison is optional.\n"
-            "- **Limits:** this is not investment advice, a trading system, or evidence of predictive performance."
+            "- **Limits:** this is not investment advice, a trading system, portfolio management software, or evidence of predictive performance."
         )
 
     tabs = st.tabs(["Security analysis", "Portfolio risk", "Walk-forward models"])
@@ -138,7 +141,7 @@ def run_demo() -> None:
                 ),
             ),
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
         )
 
     with tabs[1]:
@@ -163,7 +166,7 @@ def run_demo() -> None:
             container.markdown(f"**{title}**")
             container.dataframe(
                 pd.DataFrame({"Weight": result["weights"]}).style.format("{:.1%}"),
-                use_container_width=True,
+                width="stretch",
             )
             container.dataframe(
                 _metric_rows(
@@ -177,7 +180,7 @@ def run_demo() -> None:
                     ),
                 ),
                 hide_index=True,
-                use_container_width=True,
+                width="stretch",
             )
         st.line_chart(
             pd.DataFrame(
@@ -197,7 +200,7 @@ def run_demo() -> None:
         logistic = run_walk_forward_backtest(
             data[selected], initial_train_size, test_size, threshold, "logistic"
         )
-        st.dataframe(logistic, hide_index=True, use_container_width=True)
+        st.dataframe(logistic, hide_index=True, width="stretch")
         if _optional_torch_available():
             try:
                 pytorch = run_walk_forward_backtest(
@@ -206,7 +209,7 @@ def run_demo() -> None:
                 st.dataframe(
                     pytorch.assign(model="PyTorch (optional)"),
                     hide_index=True,
-                    use_container_width=True,
+                    width="stretch",
                 )
                 st.line_chart(
                     pd.DataFrame(
