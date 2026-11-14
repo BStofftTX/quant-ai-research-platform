@@ -24,6 +24,7 @@ pytorch = [
     "torch>=2.14.1",
 ]
 demo = [
+    "pillow>=13.0.0",
     "streamlit>=1.40",
 ]
 
